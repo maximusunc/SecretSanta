@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fdf8ef;
+  --color-paper: #fffdf8;
+  --color-ink: #2b1d14;
+  --color-muted: #7a6a5c;
+  --color-berry: #b3202e;
+  --color-berry-dark: #8c1622;
+  --color-pine: #1f5a3d;
+  --color-pine-dark: #143d29;
+  --color-gold: #d9a441;
+  --color-frost: #eaf3f7;
+  --font-display: var(--font-festive), "Georgia", serif;
+  --font-sans: var(--font-body), system-ui, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-cream);
+  background-image:
+    radial-gradient(circle at 12% 8%, rgb(179 32 46 / 0.07), transparent 40%),
+    radial-gradient(circle at 88% 30%, rgb(31 90 61 / 0.08), transparent 45%);
+  background-attachment: fixed;
+  color: var(--color-ink);
+}
+
+/* Candy-cane stripe used as a decorative border. */
+.candy-stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-berry) 0 10px,
+    #fff 10px 20px
+  );
+}
+
+@utility card {
+  @apply rounded-2xl bg-paper shadow-[0_2px_0_rgb(43_29_20/0.06),0_8px_24px_-12px_rgb(43_29_20/0.25)] ring-1 ring-ink/5;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-semibold transition active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none;
+}
+@utility btn-primary {
+  @apply btn bg-berry text-white shadow-md shadow-berry/30 hover:bg-berry-dark;
+}
+@utility btn-green {
+  @apply btn bg-pine text-white shadow-md shadow-pine/30 hover:bg-pine-dark;
+}
+@utility btn-ghost {
+  @apply btn bg-ink/5 text-ink hover:bg-ink/10;
+}
+
+@utility input {
+  @apply w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-base outline-none transition placeholder:text-muted/60 focus:border-pine focus:ring-4 focus:ring-pine/15;
+}
+@utility label {
+  @apply mb-1.5 block text-sm font-semibold text-ink/80;
+}
+
+/* --- Present reveal ---------------------------------------------------- */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-4deg); }
+  40% { transform: rotate(4deg); }
+  60% { transform: rotate(-2deg); }
+  80% { transform: rotate(2deg); }
+}
+@keyframes lid-off {
+  0% { transform: translateY(0) rotate(0); }
+  40% { transform: translateY(-40px) rotate(-8deg); }
+  100% { transform: translateY(-220px) rotate(-35deg) translateX(-60px); opacity: 0; }
+}
+@keyframes box-away {
+  to { transform: translateY(40px) scale(0.85); opacity: 0; }
+}
+@keyframes pop-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot)); opacity: 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-wiggle { animation: wiggle 1.2s ease-in-out infinite; }
+.animate-lid-off { animation: lid-off 0.9s cubic-bezier(.5,-0.3,.7,1) forwards; }
+.animate-box-away { animation: box-away 0.6s 0.5s ease-in forwards; }
+.animate-pop-in { animation: pop-in 0.7s cubic-bezier(.2,1.4,.4,1) both; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

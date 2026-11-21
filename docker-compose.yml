@@ -1,0 +1,17 @@
+services:
+  secretsanta:
+    build: .
+    container_name: secretsanta
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Dates like "reveal on Dec 25" are evaluated in this time zone.
+      TZ: America/New_York
+      # Set to "true" once you serve the site over HTTPS (e.g. Tailscale Funnel).
+      COOKIE_SECURE: "false"
+      # Only needed if a proxy in front rewrites the Host header:
+      # ALLOWED_ORIGINS: santa.your-tailnet.ts.net
+    volumes:
+      # Database + uploaded images. Back this folder up!
+      - ./data:/data
