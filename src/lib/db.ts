@@ -80,6 +80,13 @@ const MIGRATIONS: string[] = [
   );
   CREATE INDEX messages_thread ON messages(exchange_id, giver_id, created_at);
   `,
+  /* 2: emoji avatars → ornament colours */ `
+  ALTER TABLE users ADD COLUMN ornament TEXT NOT NULL DEFAULT 'spruce';
+  UPDATE users SET ornament = CASE id % 8
+    WHEN 0 THEN 'silver' WHEN 1 THEN 'cranberry' WHEN 2 THEN 'spruce' WHEN 3 THEN 'candlelight'
+    WHEN 4 THEN 'winter' WHEN 5 THEN 'plum' WHEN 6 THEN 'copper' ELSE 'frost' END;
+  ALTER TABLE users DROP COLUMN emoji;
+  `,
 ];
 
 function migrate(db: Database.Database) {

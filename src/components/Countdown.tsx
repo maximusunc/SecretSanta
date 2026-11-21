@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 
 function nextChristmas(now: Date) {
   const xmas = new Date(now.getFullYear(), 11, 25);
-  // Stay on "It's Christmas!" for the whole day.
+  // Stay on "Merry Christmas" for the whole day.
   if (now >= new Date(now.getFullYear(), 11, 26)) xmas.setFullYear(now.getFullYear() + 1);
   return xmas;
 }
 
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** "24 sleeps until Christmas", ticking every second. */
 export default function Countdown() {
   const [now, setNow] = useState<Date | null>(null);
 
@@ -19,43 +22,37 @@ export default function Countdown() {
     return () => clearInterval(t);
   }, []);
 
-  if (!now) return <div className="h-[92px]" aria-hidden />;
+  const shell = "panel flex min-h-[112px] items-end gap-3.5 px-5 py-5";
+
+  if (!now) return <section aria-hidden className={shell} />;
 
   const target = nextChristmas(now);
   const diff = target.getTime() - now.getTime();
 
   if (diff <= 0) {
     return (
-      <div className="py-4 text-center font-display text-4xl font-bold text-berry animate-pop-in">
-        🎄 Merry Christmas! 🎄
-      </div>
+      <section className={`${shell} items-center justify-center`}>
+        <p className="font-display text-4xl font-bold text-gold">Merry Christmas!</p>
+      </section>
     );
   }
 
-  const units = [
-    { label: "days", value: Math.floor(diff / 86_400_000) },
-    { label: "hours", value: Math.floor(diff / 3_600_000) % 24 },
-    { label: "mins", value: Math.floor(diff / 60_000) % 60 },
-    { label: "secs", value: Math.floor(diff / 1000) % 60 },
-  ];
+  const days = Math.floor(diff / 86_400_000);
+  const hours = Math.floor(diff / 3_600_000) % 24;
+  const mins = Math.floor(diff / 60_000) % 60;
+  const secs = Math.floor(diff / 1000) % 60;
 
   return (
-    <div>
-      <p className="mb-2 text-center text-sm font-semibold uppercase tracking-widest text-white/80">
-        Countdown to Christmas
-      </p>
-      <div className="grid grid-cols-4 gap-2">
-        {units.map((u) => (
-          <div key={u.label} className="rounded-xl bg-white/15 px-1 py-2 text-center backdrop-blur-sm">
-            <div className="text-3xl font-extrabold tabular-nums text-white sm:text-4xl">
-              {String(u.value).padStart(2, "0")}
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-white/75">
-              {u.label}
-            </div>
-          </div>
-        ))}
+    <section aria-label="Countdown to Christmas" className={shell}>
+      <span className="font-display text-[72px] font-bold leading-[0.85] text-gold tabular-nums">{days}</span>
+      <div className="flex flex-col gap-1.5 pb-1">
+        <span className="font-display text-[19px] font-semibold leading-tight whitespace-nowrap">
+          {days === 1 ? "sleep" : "sleeps"} until Christmas
+        </span>
+        <span className="text-sm text-mist tabular-nums">
+          {pad(hours)} hrs · {pad(mins)} min · {pad(secs)} sec
+        </span>
       </div>
-    </div>
+    </section>
   );
 }

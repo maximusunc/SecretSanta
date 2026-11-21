@@ -12,7 +12,7 @@ import {
 } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { userCount } from "@/lib/users";
-import { EMOJIS } from "@/lib/emojis";
+import { isOrnament } from "@/lib/ornaments";
 import type { ActionResult } from "@/components/Forms";
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
@@ -40,26 +40,26 @@ export async function setupAdmin(_: ActionResult, fd: FormData): Promise<ActionR
 
   const res = getDb()
     .prepare(
-      "INSERT INTO users (email, name, password_hash, is_admin, must_change_password, emoji) VALUES (?, ?, ?, 1, 0, '🎅')",
+      "INSERT INTO users (email, name, password_hash, is_admin, must_change_password, ornament) VALUES (?, ?, ?, 1, 0, 'cranberry')",
     )
     .run(email, name, await hashPassword(password));
   await createSession(Number(res.lastInsertRowid));
   redirect("/admin");
 }
 
-/** First login: replace the temporary password and pick an avatar. */
+/** First login: replace the temporary password and pick an ornament. */
 export async function completeWelcome(_: ActionResult, fd: FormData): Promise<ActionResult> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const password = String(fd.get("password") ?? "");
   const confirm = String(fd.get("confirm") ?? "");
-  const emoji = str(fd, "emoji");
+  const ornament = str(fd, "ornament");
   if (password.length < MIN_PASSWORD) return { error: `Password must be at least ${MIN_PASSWORD} characters.` };
   if (password !== confirm) return { error: "Those passwords don't match." };
 
   getDb()
-    .prepare("UPDATE users SET password_hash = ?, must_change_password = 0, emoji = ? WHERE id = ?")
-    .run(await hashPassword(password), EMOJIS.includes(emoji) ? emoji : user.emoji, user.id);
+    .prepare("UPDATE users SET password_hash = ?, must_change_password = 0, ornament = ? WHERE id = ?")
+    .run(await hashPassword(password), isOrnament(ornament) ? ornament : user.ornament, user.id);
   redirect("/");
 }
 
@@ -73,10 +73,10 @@ export async function changePassword(_: ActionResult, fd: FormData): Promise<Act
   return { ok: "Password updated." };
 }
 
-export async function updateEmoji(_: ActionResult, fd: FormData): Promise<ActionResult> {
+export async function updateOrnament(_: ActionResult, fd: FormData): Promise<ActionResult> {
   const user = await requireUser();
-  const emoji = str(fd, "emoji");
-  if (!EMOJIS.includes(emoji)) return { error: "Pick one of the options." };
-  getDb().prepare("UPDATE users SET emoji = ? WHERE id = ?").run(emoji, user.id);
+  const ornament = str(fd, "ornament");
+  if (!isOrnament(ornament)) return { error: "Pick one of the options." };
+  getDb().prepare("UPDATE users SET ornament = ? WHERE id = ?").run(ornament, user.id);
   return { ok: "Looking festive!" };
 }

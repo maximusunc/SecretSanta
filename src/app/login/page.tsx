@@ -13,7 +13,7 @@ export default async function LoginPage() {
 
   return (
     <AuthShell title="Secret Santa" subtitle="Sign in to see who you're shopping for">
-      <ActionForm action={login} className="space-y-4">
+      <ActionForm action={login} className="flex flex-col gap-4">
         <div>
           <label className="label" htmlFor="email">Email</label>
           <input id="email" name="email" type="email" autoComplete="email" required className="input" />
@@ -22,13 +22,13 @@ export default async function LoginPage() {
           <label className="label" htmlFor="password">Password</label>
           <input id="password" name="password" type="password" autoComplete="current-password" required className="input" />
         </div>
-        <SubmitButton className="btn-primary w-full py-3 text-lg" pending="Checking the list…">
-          Sign in 🎄
+        <SubmitButton className="btn-cranberry mt-1 w-full" pending="Checking the list…">
+          Sign in
         </SubmitButton>
+        <p className="text-center text-[13px] text-muted">
+          Forgot your password? Ask the family admin to reset it.
+        </p>
       </ActionForm>
-      <p className="mt-6 text-center text-sm text-muted">
-        Forgot your password? Ask the family admin to reset it.
-      </p>
     </AuthShell>
   );
 }

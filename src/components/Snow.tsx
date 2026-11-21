@@ -1,24 +1,49 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { SnowflakeIcon } from "./Icons";
 
 const STORAGE_KEY = "santa:snow";
+const EVENT = "santa:snow-change";
 
-/** Gentle falling snow on a fixed canvas. Toggle with the ❄️ button; respects reduced motion. */
+function readPref(): boolean {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return saved === "on";
+  } catch {
+    /* storage unavailable */
+  }
+  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Subscribe to the snow on/off preference (shared between <Snow> and <SnowToggle>). */
+function useSnowPref(): [boolean, (on: boolean) => void] {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read browser-only prefs after mount
+    setOn(readPref());
+    const sync = () => setOn(readPref());
+    window.addEventListener(EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  const set = (next: boolean) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, next ? "on" : "off");
+    } catch {}
+    setOn(next);
+    window.dispatchEvent(new Event(EVENT));
+  };
+  return [on, set];
+}
+
+/** Gentle falling snow on a fixed canvas behind everything. */
 export default function Snow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [on, setOn] = useState(true);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- read browser-only prefs after mount
-      setOn(saved ? saved === "on" : !reduced);
-    } catch {
-      /* storage unavailable: keep default */
-    }
-  }, []);
+  const [on] = useSnowPref();
 
   useEffect(() => {
     if (!on) return;
@@ -41,7 +66,7 @@ export default function Snow() {
     const flakes = Array.from({ length: count }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      r: 1 + Math.random() * 2.8,
+      r: 1 + Math.random() * 2.6,
       speed: 0.3 + Math.random() * 0.9,
       drift: Math.random() * Math.PI * 2,
     }));
@@ -59,7 +84,7 @@ export default function Snow() {
         }
         ctx.beginPath();
         ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(160, 190, 210, ${0.35 + f.r / 8})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.25 + f.r / 7})`;
         ctx.fill();
       }
       frame = requestAnimationFrame(tick);
@@ -71,32 +96,22 @@ export default function Snow() {
     };
   }, [on]);
 
-  const toggle = () => {
-    const next = !on;
-    setOn(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, next ? "on" : "off");
-    } catch {}
-  };
+  if (!on) return null;
+  return <canvas ref={canvasRef} aria-hidden className="pointer-events-none fixed inset-0 z-0 h-full w-full" />;
+}
 
+/** The snowflake button in the header. */
+export function SnowToggle() {
+  const [on, setOn] = useSnowPref();
   return (
-    <>
-      {on && (
-        <canvas
-          ref={canvasRef}
-          aria-hidden
-          className="pointer-events-none fixed inset-0 z-0 h-full w-full"
-        />
-      )}
-      <button
-        onClick={toggle}
-        title={on ? "Turn snow off" : "Let it snow"}
-        aria-label={on ? "Turn snow off" : "Turn snow on"}
-        className="fixed bottom-20 right-3 z-50 grid h-9 w-9 sm:bottom-4 place-items-center rounded-full bg-white/80 text-lg shadow ring-1 ring-ink/10 backdrop-blur transition hover:scale-105"
-        style={{ opacity: on ? 1 : 0.55 }}
-      >
-        ❄️
-      </button>
-    </>
+    <button
+      onClick={() => setOn(!on)}
+      aria-label={on ? "Turn snow off" : "Turn snow on"}
+      aria-pressed={on}
+      title={on ? "Turn snow off" : "Let it snow"}
+      className={`grid h-11 w-11 place-items-center rounded-full transition hover:bg-white/10 ${on ? "text-gold" : "text-mist/70"}`}
+    >
+      <SnowflakeIcon size={20} />
+    </button>
   );
 }

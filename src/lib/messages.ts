@@ -59,3 +59,13 @@ export function unreadCount(exchangeId: number, userId: number): number {
     .get(exchangeId, userId, userId) as { n: number };
   return row.n;
 }
+
+/** Does one side of a thread have unread messages waiting? */
+export function hasUnread(exchangeId: number, giverId: number, receiverId: number, readerIsSanta: boolean): boolean {
+  return !!getDb()
+    .prepare(
+      `SELECT 1 FROM messages WHERE exchange_id = ? AND giver_id = ? AND receiver_id = ?
+       AND sender_is_santa = ? AND read_at IS NULL LIMIT 1`,
+    )
+    .get(exchangeId, giverId, receiverId, readerIsSanta ? 0 : 1);
+}

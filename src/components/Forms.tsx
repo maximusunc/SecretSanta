@@ -9,7 +9,7 @@ export type FormAction = (prev: ActionResult, formData: FormData) => Promise<Act
 export function SubmitButton({
   children,
   pending,
-  className = "btn-primary",
+  className = "btn-gold",
   ...rest
 }: { children: ReactNode; pending?: ReactNode; className?: string } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const status = useFormStatus();
@@ -63,8 +63,8 @@ export function FormMessage({ state }: { state: ActionResult }) {
   return (
     <p
       role="status"
-      className={`mt-3 rounded-xl px-3 py-2 text-sm font-semibold ${
-        state.error ? "bg-berry/10 text-berry" : "bg-pine/10 text-pine"
+      className={`mt-3 rounded-2xl px-4 py-2.5 text-sm font-bold ${
+        state.error ? "bg-cranberry text-white" : "bg-spruce text-white"
       }`}
     >
       {state.error ?? state.ok}

@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState, useTransition } from "reac
 import { addBoardItem, fetchPreview } from "@/app/actions/board";
 import type { LinkPreview } from "@/lib/linkPreview";
 import { FormMessage, SubmitButton } from "../Forms";
+import { PlusIcon } from "../Icons";
 
 /** Pin a link (with automatic title + picture) and/or a photo, plus notes. */
 export default function AddItem() {
@@ -58,9 +59,9 @@ export default function AddItem() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-berry/40 bg-white/60 py-5 text-lg font-bold text-berry transition hover:bg-white"
+        className="flex min-h-16 w-full items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-tan bg-white/50 text-lg font-bold text-spruce transition hover:bg-white"
       >
-        <span className="text-2xl">＋</span> Pin an idea
+        <PlusIcon /> Pin an idea
       </button>
     );
   }
@@ -68,10 +69,10 @@ export default function AddItem() {
   const shownImage = photoUrl ?? preview?.image ?? null;
 
   return (
-    <form ref={formRef} action={action} className="card space-y-4 p-4 sm:p-5">
+    <form ref={formRef} action={action} className="card space-y-4 bg-white p-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Pin an idea</h2>
-        <button type="button" onClick={() => { reset(); setOpen(false); }} className="text-sm font-semibold text-muted">
+        <h2 className="font-display text-2xl font-semibold">Pin an idea</h2>
+        <button type="button" onClick={() => { reset(); setOpen(false); }} className="min-h-11 px-2 text-sm font-bold text-muted hover:text-ink">
           Cancel
         </button>
       </div>
@@ -90,12 +91,12 @@ export default function AddItem() {
           onPaste={(e) => loadPreview(e.clipboardData.getData("text"))}
           onBlur={() => loadPreview(url)}
         />
-        {loadingPreview && <p className="mt-2 text-sm text-muted">🔎 Fetching preview…</p>}
-        {previewError && <p className="mt-2 text-sm text-berry">{previewError}</p>}
+        {loadingPreview && <p className="mt-2 text-sm text-muted">Fetching preview…</p>}
+        {previewError && <p className="mt-2 text-sm font-semibold text-cranberry-dark">{previewError}</p>}
       </div>
 
       {shownImage && (
-        <div className="overflow-hidden rounded-xl bg-frost">
+        <div className="overflow-hidden rounded-2xl bg-paper">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={shownImage} alt="" className="mx-auto max-h-64 object-contain" />
         </div>
@@ -113,7 +114,7 @@ export default function AddItem() {
           name="photo"
           type="file"
           accept="image/*"
-          className="block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-pine file:px-4 file:py-2 file:font-semibold file:text-white"
+          className="block w-full text-sm text-muted file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-spruce file:px-5 file:font-bold file:text-white"
           onChange={(e) => {
             const f = e.target.files?.[0];
             setPhotoUrl(f ? URL.createObjectURL(f) : null);
@@ -128,10 +129,10 @@ export default function AddItem() {
 
       <div>
         <label className="label" htmlFor="notes">Notes</label>
-        <textarea id="notes" name="notes" rows={3} className="input" placeholder="Size, color, “any flavor but mint”…" maxLength={2000} />
+        <textarea id="notes" name="notes" rows={3} className="input" placeholder="Size, colour, “any flavour but mint”… (a note on its own is fine too)" maxLength={2000} />
       </div>
 
-      <SubmitButton className="btn-primary w-full py-3" pending="Pinning…">Pin it 📌</SubmitButton>
+      <SubmitButton className="btn-cranberry w-full" pending="Pinning…">Pin it</SubmitButton>
       <FormMessage state={state?.error ? state : null} />
     </form>
   );
