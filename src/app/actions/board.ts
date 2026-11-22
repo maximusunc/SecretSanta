@@ -1,12 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { requireUser, type User } from "@/lib/auth";
 import { getUser } from "@/lib/users";
 import { addItem, deleteItem, getItem, updateItem } from "@/lib/board";
 import { deleteImage, downloadImage, saveUploadedFile } from "@/lib/images";
 import { parsePreview, type LinkPreview } from "@/lib/linkPreview";
 import { safeFetch } from "@/lib/safeFetch";
+import { getCurrentExchange, getMySanta } from "@/lib/exchanges";
+import { firstName } from "@/lib/ornaments";
+import { claimNotificationSlot, notifyUser, preview as previewText } from "@/lib/push";
 import type { ActionResult } from "@/components/Forms";
 
 const str = (fd: FormData, k: string, max = 2000) => String(fd.get(k) ?? "").trim().slice(0, max);
@@ -101,9 +105,10 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
     return { error: (e as Error).message || "Couldn't read that image." };
   }
 
+  const itemTitle = title || (siteName ?? "");
   addItem({
     userId: ownerId,
-    title: title || (siteName ?? ""),
+    title: itemTitle,
     url,
     siteName,
     imageFile,
@@ -111,6 +116,7 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
     notes,
   });
   revalidateBoard(ownerId);
+  after(() => notifySantaOfNewIdea(ownerId, user.id, itemTitle || notes));
   return { ok: "Pinned!" };
 }
 
@@ -119,6 +125,28 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
  * replaces the old one; "removeImage" clears it; and a pin that has a link but
  * no picture tries to pick one up from the link, just like when pinning.
  */
+/** Minutes between "new idea" notifications for the same board, so a burst of pins sends one. */
+const NEW_IDEA_WINDOW_SECONDS = 10 * 60;
+
+/** Tell the board owner's Secret Santa that a new idea was pinned (the owner never learns who that is). */
+async function notifySantaOfNewIdea(ownerId: number, addedBy: number, what: string) {
+  const ex = getCurrentExchange();
+  if (!ex) return;
+  const santaId = getMySanta(ex.id, ownerId);
+  // No Santa yet, or the Santa pinned it themselves (e.g. an admin copying ideas over).
+  if (!santaId || santaId === addedBy) return;
+  if (!claimNotificationSlot(`board:${ex.id}:${ownerId}`, NEW_IDEA_WINDOW_SECONDS)) return;
+  const owner = getUser(ownerId);
+  if (!owner) return;
+  const name = firstName(owner.name);
+  await notifyUser(santaId, {
+    title: `${name} pinned a new idea`,
+    body: what ? previewText(what) : `Take a look at ${name}'s wish board.`,
+    url: `/boards/${ownerId}`,
+    tag: `board-${ownerId}`,
+  });
+}
+
 export async function editBoardItem(_: ActionResult, fd: FormData): Promise<ActionResult> {
   const user = await requireUser();
   const item = getItem(Number(fd.get("id")));
