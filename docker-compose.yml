@@ -12,6 +12,8 @@ services:
       COOKIE_SECURE: "false"
       # Only needed if a proxy in front rewrites the Host header:
       # ALLOWED_ORIGINS: santa.your-tailnet.ts.net
+      # Optional contact sent to Apple/Google with push notifications:
+      # VAPID_SUBJECT: mailto:you@example.com
     volumes:
       # Database + uploaded images. Back this folder up!
       - ./data:/data

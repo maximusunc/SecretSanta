@@ -87,6 +87,21 @@ const MIGRATIONS: string[] = [
     WHEN 4 THEN 'winter' WHEN 5 THEN 'plum' WHEN 6 THEN 'copper' ELSE 'frost' END;
   ALTER TABLE users DROP COLUMN emoji;
   `,
+  /* 3: push notifications */ `
+  CREATE TABLE settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+  CREATE TABLE push_subscriptions (
+    id         INTEGER PRIMARY KEY,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    endpoint   TEXT NOT NULL UNIQUE,
+    p256dh     TEXT NOT NULL,
+    auth       TEXT NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+  CREATE INDEX push_subscriptions_user ON push_subscriptions(user_id);
+  `,
 ];
 
 function migrate(db: Database.Database) {

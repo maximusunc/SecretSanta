@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { hashPassword, requireAdmin, tempPassword } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { getExchange, runDraw } from "@/lib/exchanges";
-import { getUser, setSpouse, userCount } from "@/lib/users";
+import { getUser, listUsers, setSpouse, userCount } from "@/lib/users";
+import { notifyUser } from "@/lib/push";
 import { ORNAMENT_IDS } from "@/lib/ornaments";
 import type { ActionResult } from "@/components/Forms";
 
@@ -120,6 +122,18 @@ export async function drawNamesAction(_: ActionResult, fd: FormData): Promise<Ac
     ignorePreviousYear: fd.get("ignorePreviousYear") === "on",
   });
   if (!res.ok) return { error: res.reason };
+  after(() =>
+    Promise.all(
+      listUsers().map((u) =>
+        notifyUser(u.id, {
+          title: "Names have been drawn!",
+          body: "Your present is waiting. Tap to unwrap who you're Secret Santa for.",
+          url: "/",
+          tag: "draw",
+        }),
+      ),
+    ),
+  );
   return done(
     `Names drawn! (${res.possibilities} possible pairings were valid — one was picked at random.) Nobody, including you, can see the results here.`,
   );

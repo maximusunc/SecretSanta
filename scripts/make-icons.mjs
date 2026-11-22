@@ -1,4 +1,5 @@
-// Regenerates favicon.ico and apple-icon.png from src/app/icon.svg.
+// Regenerates favicon.ico, apple-icon.png and the app icons (public/icon-192.png,
+// public/icon-512.png) from src/app/icon.svg.
 // Run after editing the SVG:  node scripts/make-icons.mjs
 import fs from "node:fs";
 import sharp from "sharp";
@@ -28,11 +29,18 @@ sizes.forEach((size, i) => {
 });
 fs.writeFileSync("src/app/favicon.ico", Buffer.concat([header, ...images]));
 
-// apple-icon.png: home-screen icon, Santa on midnight navy (iOS rounds the corners).
-const face = await sharp(svg, { density: 1200 }).resize(136, 136).png().toBuffer();
-await sharp({ create: { width: 180, height: 180, channels: 4, background: "#0f1b2d" } })
-  .composite([{ input: face, left: 22, top: 20 }])
-  .png()
-  .toFile("src/app/apple-icon.png");
+// Home-screen / app icons: Santa on midnight navy, with enough padding that
+// iOS's rounded corners and Android's "maskable" crop never clip him.
+async function appIcon(size, out) {
+  const faceSize = Math.round(size * 0.68);
+  const face = await sharp(svg, { density: 2400 }).resize(faceSize, faceSize).png().toBuffer();
+  await sharp({ create: { width: size, height: size, channels: 4, background: "#0f1b2d" } })
+    .composite([{ input: face, left: Math.round((size - faceSize) / 2), top: Math.round((size - faceSize) / 2.2) }])
+    .png()
+    .toFile(out);
+}
+await appIcon(180, "src/app/apple-icon.png");
+await appIcon(192, "public/icon-192.png");
+await appIcon(512, "public/icon-512.png");
 
-console.log("Wrote src/app/favicon.ico and src/app/apple-icon.png");
+console.log("Wrote favicon.ico, apple-icon.png, public/icon-192.png, public/icon-512.png");

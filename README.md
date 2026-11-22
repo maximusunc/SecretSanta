@@ -7,6 +7,7 @@ A festive, mobile-first Secret Santa dashboard for the family:
 - **Present reveal.** Tap a wiggling present to unwrap a gift tag with the name of the person you're Santa for (with confetti).
 - **Wish boards** (Pinterest-style). Paste a link and the app fetches the product title and picture, or upload a photo from your phone. Add notes like size or colour.
 - **Anonymous messages.** Ask your giftee a sneaky question; they only ever see "Your Secret Santa".
+- **Notifications.** Get a phone notification when your Santa or giftee messages you, and when names are drawn.
 - **Christmas extras.** A "sleeps until Christmas" countdown, falling snow (toggle with the snowflake in the header), and budget and exchange-date tiles.
 - **The big reveal.** On the reveal date everyone finds out who their Santa was, and the year moves into **History**.
 
@@ -46,6 +47,15 @@ Updating later: `git pull && docker compose up -d --build`.
 
 When serving over HTTPS, set `COOKIE_SECURE: "true"` in `docker-compose.yml` and restart the container.
 If you see "invalid Server Actions request" errors behind some other proxy, add the public hostname to `ALLOWED_ORIGINS`.
+
+### Phone app and notifications (iPhone)
+
+1. Open the site in Safari, tap **Share**, then **Add to Home Screen**. It opens full-screen like an app.
+2. Open it from the Home Screen, go to your account (your name tag, top right), and tap **Turn on notifications**.
+
+Notifications need the HTTPS address (Tailscale) and the Home Screen app; they don't work in a normal Safari tab.
+Keys for the push service are generated automatically on first use and stored in the database. Optionally set
+`VAPID_SUBJECT` (a `mailto:` or `https:` contact for Apple/Google) in `docker-compose.yml`.
 
 ### Backups
 

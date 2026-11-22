@@ -8,6 +8,8 @@ import NameTag from "@/components/NameTag";
 import AutoRefresh from "@/components/AutoRefresh";
 import { SantaIcon } from "@/components/Icons";
 import MessageComposer from "@/components/MessageComposer";
+import { NotificationNudge } from "@/components/NotificationToggle";
+import { getVapidKeys } from "@/lib/push";
 import { firstName } from "@/lib/ornaments";
 
 export default async function MessagesPage({ searchParams }: PageProps<"/messages">) {
@@ -45,6 +47,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
     <div className="mx-auto flex max-w-xl flex-col gap-4">
       <AutoRefresh seconds={20} />
       <h1 className="font-display text-[30px] font-bold">Secret messages</h1>
+      {ex && hasThread && <NotificationNudge vapidPublicKey={getVapidKeys().publicKey} />}
 
       <div role="tablist" aria-label="Conversations" className="grid grid-cols-2 gap-1 rounded-full bg-night p-1">
         <Tab href="/messages?with=giftee" active={tab === "giftee"}>
