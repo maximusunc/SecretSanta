@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth";
+import { requireUser, type User } from "@/lib/auth";
+import { getUser } from "@/lib/users";
 import { addItem, deleteItem, getItem, updateItem } from "@/lib/board";
 import { deleteImage, downloadImage, saveUploadedFile } from "@/lib/images";
 import { parsePreview, type LinkPreview } from "@/lib/linkPreview";
@@ -46,8 +47,19 @@ export async function fetchPreview(rawUrl: string): Promise<PreviewResult> {
   }
 }
 
+/** You can change your own board; admins can change anyone's (e.g. to copy ideas over from Pinterest). */
+const canEditBoard = (user: User, ownerId: number) => user.id === ownerId || user.isAdmin;
+
+function revalidateBoard(ownerId: number) {
+  revalidatePath(`/boards/${ownerId}`);
+  revalidatePath("/boards");
+  revalidatePath("/");
+}
+
 export async function addBoardItem(_: ActionResult, fd: FormData): Promise<ActionResult> {
   const user = await requireUser();
+  const ownerId = Number(fd.get("boardUserId") ?? user.id) || user.id;
+  if (!canEditBoard(user, ownerId) || !getUser(ownerId)) return { error: "You can only add to your own board." };
   const rawUrl = str(fd, "url");
   const url = normaliseUrl(rawUrl);
   if (rawUrl && !url) return { error: "That link doesn't look right." };
@@ -90,7 +102,7 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
   }
 
   addItem({
-    userId: user.id,
+    userId: ownerId,
     title: title || (siteName ?? ""),
     url,
     siteName,
@@ -98,29 +110,27 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
     imageUrl: imageUrl && /^https?:\/\//.test(imageUrl) ? imageUrl : null,
     notes,
   });
-  revalidatePath(`/boards/${user.id}`);
-  revalidatePath("/boards");
+  revalidateBoard(ownerId);
   return { ok: "Pinned!" };
 }
 
 export async function editBoardItem(_: ActionResult, fd: FormData): Promise<ActionResult> {
   const user = await requireUser();
   const item = getItem(Number(fd.get("id")));
-  if (!item || item.userId !== user.id) return { error: "You can only edit your own board." };
+  if (!item || !canEditBoard(user, item.userId)) return { error: "You can only edit your own board." };
   const rawUrl = str(fd, "url");
   const url = normaliseUrl(rawUrl);
   if (rawUrl && !url) return { error: "That link doesn't look right." };
   updateItem(item.id, { title: str(fd, "title", 200), notes: str(fd, "notes", 2000), url });
-  revalidatePath(`/boards/${user.id}`);
+  revalidateBoard(item.userId);
   return { ok: "Saved." };
 }
 
 export async function removeBoardItem(fd: FormData) {
   const user = await requireUser();
   const item = getItem(Number(fd.get("id")));
-  if (!item || item.userId !== user.id) return;
+  if (!item || !canEditBoard(user, item.userId)) return;
   deleteItem(item.id);
   await deleteImage(item.imageFile);
-  revalidatePath(`/boards/${user.id}`);
-  revalidatePath("/boards");
+  revalidateBoard(item.userId);
 }
