@@ -29,6 +29,9 @@ ENV NODE_ENV=production \
 RUN mkdir -p /data && chown node:node /data
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
+# Static files served from the site root (service worker, app icons). The standalone
+# server only serves them if they're copied next to server.js.
+COPY --from=build --chown=node:node /app/public ./public
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Starts as root only long enough to fix /data ownership, then runs as `node`.
