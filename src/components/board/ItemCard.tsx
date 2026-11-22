@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import type { BoardItem } from "@/lib/board";
 import { imageSrc } from "@/lib/imageSrc";
 import { editBoardItem, removeBoardItem } from "@/app/actions/board";
-import { ActionForm, SubmitButton } from "../Forms";
+import { FormMessage, SubmitButton } from "../Forms";
 import { LinkIcon } from "../Icons";
 import { firstName } from "@/lib/ornaments";
 
@@ -38,23 +38,7 @@ export default function ItemCard({
   );
 
   if (editing) {
-    return (
-      <article className="mb-3 break-inside-avoid rounded-[18px] bg-white p-3 shadow-[0_10px_24px_-16px_rgb(15_27_45/0.45)]">
-        <ActionForm action={editBoardItem} className="space-y-2">
-          <input type="hidden" name="id" value={item.id} />
-          <label className="sr-only" htmlFor={`title-${item.id}`}>Title</label>
-          <input id={`title-${item.id}`} name="title" defaultValue={item.title} className="input text-sm" placeholder="Title" />
-          <label className="sr-only" htmlFor={`url-${item.id}`}>Link</label>
-          <input id={`url-${item.id}`} name="url" defaultValue={item.url ?? ""} className="input text-sm" placeholder="Link" />
-          <label className="sr-only" htmlFor={`notes-${item.id}`}>Notes</label>
-          <textarea id={`notes-${item.id}`} name="notes" defaultValue={item.notes} rows={3} className="input text-sm" placeholder="Notes" />
-          <div className="flex gap-2">
-            <SubmitButton className="btn-spruce flex-1 px-3 text-sm">Save</SubmitButton>
-            <button type="button" onClick={() => setEditing(false)} className="btn-ghost px-4 text-sm">Done</button>
-          </div>
-        </ActionForm>
-      </article>
-    );
+    return <EditForm item={item} onDone={() => setEditing(false)} />;
   }
 
   if (isNote) {
@@ -96,6 +80,93 @@ export default function ItemCard({
         )}
         {controls}
       </div>
+    </article>
+  );
+}
+
+/** Edit everything about a pin, including adding, replacing or removing its picture. */
+function EditForm({ item, onDone }: { item: BoardItem; onDone: () => void }) {
+  const [state, action] = useActionState(editBoardItem, null);
+  const [newPhoto, setNewPhoto] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
+  const current = imageSrc(item);
+  const shown = newPhoto ?? (removing ? null : current);
+
+  useEffect(() => {
+    if (state?.ok) onDone();
+  }, [state, onDone]);
+
+  const id = (name: string) => `${name}-${item.id}`;
+
+  return (
+    <article className="mb-3 break-inside-avoid rounded-[18px] bg-white p-3 shadow-[0_10px_24px_-16px_rgb(15_27_45/0.45)]">
+      <form action={action} className="flex flex-col gap-2.5">
+        <input type="hidden" name="id" value={item.id} />
+
+        <div className="flex flex-col gap-2">
+          {shown ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={shown} alt="" className="max-h-48 w-full rounded-xl bg-paper object-contain" />
+          ) : (
+            <div className="grid h-20 place-items-center rounded-xl border-[1.5px] border-dashed border-line text-xs text-muted">
+              No picture
+            </div>
+          )}
+          <label
+            htmlFor={id("photo")}
+            className="btn-ghost min-h-10 cursor-pointer px-3 text-sm"
+          >
+            {current || newPhoto ? "Replace photo" : "Add a photo"}
+          </label>
+          <input
+            id={id("photo")}
+            name="photo"
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              setNewPhoto(f ? URL.createObjectURL(f) : null);
+              if (f) setRemoving(false);
+            }}
+          />
+          {current && !newPhoto && (
+            <label className="flex min-h-9 items-center gap-2 text-xs font-bold text-muted">
+              <input
+                type="checkbox"
+                name="removeImage"
+                checked={removing}
+                onChange={(e) => setRemoving(e.target.checked)}
+                className="h-4 w-4 accent-cranberry"
+              />
+              Remove picture
+            </label>
+          )}
+        </div>
+
+        <label className="sr-only" htmlFor={id("title")}>Title</label>
+        <input id={id("title")} name="title" defaultValue={item.title} className="input text-sm" placeholder="Title" maxLength={200} />
+        <label className="sr-only" htmlFor={id("url")}>Link</label>
+        <input
+          id={id("url")}
+          name="url"
+          type="text"
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          defaultValue={item.url ?? ""}
+          className="input text-sm"
+          placeholder="Link"
+        />
+        <label className="sr-only" htmlFor={id("notes")}>Notes</label>
+        <textarea id={id("notes")} name="notes" defaultValue={item.notes} rows={3} className="input text-sm" placeholder="Notes" maxLength={2000} />
+        <div className="flex gap-2">
+          <SubmitButton className="btn-spruce flex-1 px-3 text-sm" pending="Saving…">Save</SubmitButton>
+          <button type="button" onClick={onDone} className="btn-ghost px-4 text-sm">Cancel</button>
+        </div>
+        <FormMessage state={state?.error ? state : null} />
+      </form>
     </article>
   );
 }

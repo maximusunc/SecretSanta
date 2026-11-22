@@ -7,6 +7,12 @@ import { FormMessage, SubmitButton } from "../Forms";
 import { PlusIcon } from "../Icons";
 
 /** Pin a link (with automatic title + picture) and/or a photo, plus notes. */
+/** "amazon.com/x" → "https://amazon.com/x" (people rarely paste the scheme on phones). */
+function withScheme(value: string): string {
+  const v = value.trim();
+  return v && !/^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? `https://${v}` : v;
+}
+
 /** `boardUserId`: whose board to pin to (admins can pin to anyone's). */
 export default function AddItem({ boardUserId }: { boardUserId: number }) {
   const [open, setOpen] = useState(false);
@@ -40,7 +46,7 @@ export default function AddItem({ boardUserId }: { boardUserId: number }) {
   }, [state]);
 
   const loadPreview = (value: string) => {
-    const v = value.trim();
+    const v = withScheme(value);
     if (!v || v === lastFetched.current) return;
     lastFetched.current = v;
     setPreviewError(null);
@@ -83,14 +89,23 @@ export default function AddItem({ boardUserId }: { boardUserId: number }) {
         <input
           id="url"
           name="url"
-          type="url"
+          // Plain text, not type="url": the browser's URL check rejects links
+          // without "https://", which the server happily accepts.
+          type="text"
           inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           placeholder="Paste a link to a product, recipe, anything…"
           className="input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onPaste={(e) => loadPreview(e.clipboardData.getData("text"))}
-          onBlur={() => loadPreview(url)}
+          onBlur={() => {
+            const full = withScheme(url);
+            if (full !== url) setUrl(full);
+            loadPreview(full);
+          }}
         />
         {loadingPreview && <p className="mt-2 text-sm text-muted">Fetching preview…</p>}
         {previewError && <p className="mt-2 text-sm font-semibold text-cranberry-dark">{previewError}</p>}
