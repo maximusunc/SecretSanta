@@ -50,10 +50,16 @@ export function addItem(item: Omit<BoardItem, "id" | "createdAt">): number {
   return Number(res.lastInsertRowid);
 }
 
-export function updateItem(id: number, fields: { title: string; notes: string; url: string | null }) {
+export function updateItem(
+  id: number,
+  f: Pick<BoardItem, "title" | "notes" | "url" | "siteName" | "imageFile" | "imageUrl">,
+) {
   getDb()
-    .prepare("UPDATE board_items SET title = ?, notes = ?, url = ? WHERE id = ?")
-    .run(fields.title, fields.notes, fields.url, id);
+    .prepare(
+      `UPDATE board_items SET title = ?, notes = ?, url = ?, site_name = ?, image_file = ?, image_url = ?
+       WHERE id = ?`,
+    )
+    .run(f.title, f.notes, f.url, f.siteName, f.imageFile, f.imageUrl, id);
 }
 
 export function deleteItem(id: number) {

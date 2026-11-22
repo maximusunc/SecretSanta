@@ -114,6 +114,11 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
   return { ok: "Pinned!" };
 }
 
+/**
+ * Edit everything about a pin: title, link, notes and picture. A new photo
+ * replaces the old one; "removeImage" clears it; and a pin that has a link but
+ * no picture tries to pick one up from the link, just like when pinning.
+ */
 export async function editBoardItem(_: ActionResult, fd: FormData): Promise<ActionResult> {
   const user = await requireUser();
   const item = getItem(Number(fd.get("id")));
@@ -121,7 +126,51 @@ export async function editBoardItem(_: ActionResult, fd: FormData): Promise<Acti
   const rawUrl = str(fd, "url");
   const url = normaliseUrl(rawUrl);
   if (rawUrl && !url) return { error: "That link doesn't look right." };
-  updateItem(item.id, { title: str(fd, "title", 200), notes: str(fd, "notes", 2000), url });
+
+  let title = str(fd, "title", 200);
+  const notes = str(fd, "notes", 2000);
+  const photo = fd.get("photo");
+  const hasPhoto = photo instanceof File && photo.size > 0;
+  const removeImage = fd.get("removeImage") === "on";
+
+  let imageFile = removeImage ? null : item.imageFile;
+  let imageUrl = removeImage ? null : item.imageUrl;
+  let siteName = url ? (url === item.url ? item.siteName : new URL(url).hostname.replace(/^www\./, "")) : null;
+
+  if (!url && !hasPhoto && !imageFile && !imageUrl && !title && !notes) {
+    return { error: "Add a link, a photo, or a few words." };
+  }
+
+  try {
+    if (hasPhoto) {
+      imageFile = await saveUploadedFile(photo);
+      imageUrl = null;
+    } else if (url && !imageFile && !imageUrl && !removeImage) {
+      // A link but no picture yet: borrow the link's picture (and title if blank).
+      const p = await preview(url).catch(() => null);
+      if (p) {
+        siteName = p.siteName || siteName;
+        if (!title) title = p.title;
+        if (p.image) {
+          imageFile = await downloadImage(p.image).catch(() => null);
+          imageUrl = imageFile ? null : p.image;
+        }
+      }
+    }
+  } catch (e) {
+    return { error: (e as Error).message || "Couldn't read that image." };
+  }
+
+  updateItem(item.id, {
+    title: title || (siteName ?? ""),
+    notes,
+    url,
+    siteName,
+    imageFile,
+    imageUrl: imageUrl && /^https?:\/\//.test(imageUrl) ? imageUrl : null,
+  });
+  // Only now that the new picture is saved, tidy up the old file.
+  if (item.imageFile && item.imageFile !== imageFile) await deleteImage(item.imageFile);
   revalidateBoard(item.userId);
   return { ok: "Saved." };
 }
