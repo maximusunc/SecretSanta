@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Hat -->
+  <path d="M11 28 C12 14 23 5 35 5 C46 5 53 11 56 19 L50.5 22 C48 17 44.5 14.5 41 15 C46 19 49.5 23.5 52 28 Z" fill="#D2394A"/>
+  <!-- Face -->
+  <ellipse cx="32" cy="38" rx="16" ry="12" fill="#F5C6A5"/>
+  <!-- Rosy cheeks -->
+  <circle cx="21.5" cy="39" r="3.2" fill="#EC8C8F"/>
+  <circle cx="42.5" cy="39" r="3.2" fill="#EC8C8F"/>
+  <!-- Beard -->
+  <path d="M11 37 C10 52 21 62 32 62 C43 62 54 52 53 37 C49 43 43 45 38.5 43 C36 46.5 28 46.5 25.5 43 C21 45 15 43 11 37 Z" fill="#FFFFFF" stroke="#CBBFAE" stroke-width="1.5"/>
+  <!-- Moustache -->
+  <path d="M32 43.5 C28.5 39.5 22 40 19.5 45 C24 43.5 28 46.5 32 46.5 C36 46.5 40 43.5 44.5 45 C42 40 35.5 39.5 32 43.5 Z" fill="#FFFFFF" stroke="#D9CFBD" stroke-width="1.2"/>
+  <!-- Nose -->
+  <circle cx="32" cy="40.5" r="3.4" fill="#E58E73"/>
+  <!-- Eyes -->
+  <circle cx="25.5" cy="35" r="2.3" fill="#0F1B2D"/>
+  <circle cx="38.5" cy="35" r="2.3" fill="#0F1B2D"/>
+  <!-- Fur band and pom-pom -->
+  <rect x="8.5" y="24" width="47" height="9.5" rx="4.75" fill="#FFFFFF" stroke="#CBBFAE" stroke-width="1.5"/>
+  <circle cx="54.5" cy="21" r="5.5" fill="#FFFFFF" stroke="#CBBFAE" stroke-width="1.5"/>
+</svg>
