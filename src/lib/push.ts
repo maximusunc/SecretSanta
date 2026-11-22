@@ -89,6 +89,22 @@ export async function notifyUser(userId: number, payload: PushPayload): Promise<
   return delivered;
 }
 
+/**
+ * Rate-limit a kind of notification: returns true (and records now) if nothing
+ * with this key was sent in the last `windowSeconds`. Atomic, so two quick
+ * requests can't both win.
+ */
+export function claimNotificationSlot(key: string, windowSeconds: number, nowSeconds = Math.floor(Date.now() / 1000)): boolean {
+  const res = getDb()
+    .prepare(
+      `INSERT INTO settings (key, value) VALUES (?, ?)
+       ON CONFLICT (key) DO UPDATE SET value = excluded.value
+       WHERE CAST(settings.value AS INTEGER) <= ?`,
+    )
+    .run(`notified:${key}`, String(nowSeconds), nowSeconds - windowSeconds);
+  return res.changes === 1;
+}
+
 /** Short preview of a message for the lock screen. */
 export const preview = (text: string, max = 120) =>
   text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;

@@ -83,6 +83,15 @@ describe("notifyUser", () => {
     expect(sendNotification).not.toHaveBeenCalled();
   });
 
+  it("rate-limits a notification key to once per window", () => {
+    const t = 1_000_000;
+    expect(push.claimNotificationSlot("board:1:2", 600, t)).toBe(true);
+    expect(push.claimNotificationSlot("board:1:2", 600, t + 60)).toBe(false); // a minute later: held back
+    expect(push.claimNotificationSlot("board:1:3", 600, t + 60)).toBe(true); // a different board is separate
+    expect(push.claimNotificationSlot("board:1:2", 600, t + 600)).toBe(true); // window passed
+    expect(push.claimNotificationSlot("board:1:2", 600, t + 700)).toBe(false);
+  });
+
   it("shortens long previews for the lock screen", () => {
     expect(push.preview("a".repeat(200)).length).toBe(120);
     expect(push.preview("short")).toBe("short");

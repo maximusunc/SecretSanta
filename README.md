@@ -7,7 +7,7 @@ A festive, mobile-first Secret Santa dashboard for the family:
 - **Present reveal.** Tap a wiggling present to unwrap a gift tag with the name of the person you're Santa for (with confetti).
 - **Wish boards** (Pinterest-style). Paste a link and the app fetches the product title and picture, or upload a photo from your phone. Add notes like size or colour.
 - **Anonymous messages.** Ask your giftee a sneaky question; they only ever see "Your Secret Santa".
-- **Notifications.** Get a phone notification when your Santa or giftee messages you, and when names are drawn.
+- **Notifications.** Get a phone notification when your Santa or giftee messages you, when your giftee pins a new idea, and when names are drawn.
 - **Christmas extras.** A "sleeps until Christmas" countdown, falling snow (toggle with the snowflake in the header), and budget and exchange-date tiles.
 - **The big reveal.** On the reveal date everyone finds out who their Santa was, and the year moves into **History**.
 
