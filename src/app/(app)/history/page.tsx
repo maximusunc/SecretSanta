@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { formatDate } from "@/lib/dates";
 import { getMyAssignment, isRevealed, listExchanges, revealedPairs } from "@/lib/exchanges";
 import { listUsers } from "@/lib/users";
-import Avatar from "@/components/Avatar";
+import NameTag from "@/components/NameTag";
 import RecipientPicker from "@/components/RecipientPicker";
 
 export default async function HistoryPage() {
@@ -38,12 +38,10 @@ export default async function HistoryPage() {
                     const r = byId.get(p.receiverId);
                     if (!g || !r) return null;
                     return (
-                      <li key={p.giverId} className="flex items-center gap-2.5">
-                        <Avatar name={g.name} ornament={g.ornament} size="sm" />
-                        <span className="font-bold">{g.name}</span>
+                      <li key={p.giverId} className="flex flex-wrap items-center gap-2.5">
+                        <NameTag name={g.name} ornament={g.ornament} />
                         <span className="text-sm text-muted">gave to</span>
-                        <Avatar name={r.name} ornament={r.ornament} size="sm" />
-                        <span className="font-bold">{r.name}</span>
+                        <NameTag name={r.name} ornament={r.ornament} />
                       </li>
                     );
                   })}
@@ -54,10 +52,9 @@ export default async function HistoryPage() {
                     Still a secret{ex.revealDate ? `. Revealed ${formatDate(ex.revealDate)}.` : "."}
                   </p>
                   {myGiftee && (
-                    <p className="flex items-center gap-2">
+                    <p className="flex flex-wrap items-center gap-2">
                       You&apos;re giving to
-                      <Avatar name={myGiftee.name} ornament={myGiftee.ornament} size="sm" />
-                      <strong>{myGiftee.name}</strong>
+                      <NameTag name={myGiftee.name} ornament={myGiftee.ornament} />
                     </p>
                   )}
                 </div>

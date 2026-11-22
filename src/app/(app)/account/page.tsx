@@ -1,5 +1,4 @@
 import { requireUser } from "@/lib/auth";
-import Avatar from "@/components/Avatar";
 import { ActionForm, SubmitButton } from "@/components/Forms";
 import OrnamentPicker from "@/components/OrnamentPicker";
 import UsernameField from "@/components/UsernameField";
@@ -9,12 +8,9 @@ export default async function AccountPage() {
   const user = await requireUser();
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6">
-      <div className="flex items-center gap-4">
-        <Avatar name={user.name} ornament={user.ornament} size="lg" ring />
-        <div className="flex flex-col">
-          <h1 className="font-display text-4xl font-semibold leading-tight">{user.name}</h1>
-          <span className="text-sm text-mist">{user.email}</span>
-        </div>
+      <div className="flex flex-col">
+        <h1 className="font-display text-4xl font-semibold leading-tight">{user.name}</h1>
+        <span className="text-sm text-mist">{user.email}</span>
       </div>
 
       <section className="flex flex-col gap-3.5">

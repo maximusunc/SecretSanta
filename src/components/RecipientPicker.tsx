@@ -3,6 +3,7 @@
 import type { User } from "@/lib/auth";
 import { recordMyRecipient } from "@/app/actions/exchange";
 import { ActionForm, SubmitButton } from "./Forms";
+import { firstName } from "@/lib/ornaments";
 
 /** For hand-drawn years: privately pick who you have. Renders on ivory. */
 export default function RecipientPicker({
@@ -26,7 +27,7 @@ export default function RecipientPicker({
         </option>
         {users.map((u) => (
           <option key={u.id} value={u.id}>
-            {u.name}
+            {firstName(u.name)}
           </option>
         ))}
       </select>

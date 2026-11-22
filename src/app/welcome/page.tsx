@@ -4,6 +4,7 @@ import { ActionForm, SubmitButton } from "@/components/Forms";
 import OrnamentPicker from "@/components/OrnamentPicker";
 import UsernameField from "@/components/UsernameField";
 import { completeWelcome } from "../actions/auth";
+import { firstName } from "@/lib/ornaments";
 
 export default async function WelcomePage() {
   const user = await getCurrentUser();
@@ -16,7 +17,7 @@ export default async function WelcomePage() {
         <UsernameField email={user.email} />
         <div className="flex flex-col gap-2">
           <span className="eyebrow text-gold">One quick step</span>
-          <h1 className="font-display text-[40px] font-bold leading-[1.05]">Welcome, {user.name}</h1>
+          <h1 className="font-display text-[40px] font-bold leading-[1.05]">Welcome, {firstName(user.name)}</h1>
           <p className="text-base leading-relaxed text-haze">
             Choose your ornament and set a password only you know.
           </p>

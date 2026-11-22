@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import Avatar from "./Avatar";
 
 type Person = { id: number; name: string; ornament: string };
 
@@ -143,8 +142,7 @@ function GiftTag({ person, isSanta }: { person: Person; isSanta: boolean }) {
     <div className="gift-tag relative -mt-3 flex w-60 flex-col items-center gap-1.5 rounded-2xl bg-ivory px-6 pb-6 pt-10 text-center text-ink shadow-[0_22px_40px_-16px_rgb(0_0_0/0.6)]">
       <span aria-hidden className="absolute left-1/2 top-3.5 h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-deep shadow-[0_0_0_3px_var(--color-tan)]" />
       <span className="eyebrow text-bronze">{isSanta ? "Your Secret Santa was" : "You're Santa for"}</span>
-      <Avatar name={person.name} ornament={person.ornament} size="lg" className="mt-2" />
-      <span className="font-display text-5xl font-bold leading-none break-words">{person.name}</span>
+      <span className="mt-3 max-w-full font-display text-5xl font-bold leading-none break-words">{person.name}</span>
       <span aria-hidden className="mb-1 mt-2 h-px w-28 bg-line" />
       <span className="text-[13px] text-muted">
         {isSanta ? (

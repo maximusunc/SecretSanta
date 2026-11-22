@@ -4,10 +4,11 @@ import { timeAgo } from "@/lib/dates";
 import { getCurrentExchange, getMyAssignment, getMySanta, isRevealed } from "@/lib/exchanges";
 import { getThread, hasUnread, markRead, type Message } from "@/lib/messages";
 import { getUser } from "@/lib/users";
-import Avatar from "@/components/Avatar";
+import NameTag from "@/components/NameTag";
 import AutoRefresh from "@/components/AutoRefresh";
 import { SantaIcon } from "@/components/Icons";
 import MessageComposer from "@/components/MessageComposer";
+import { firstName } from "@/lib/ornaments";
 
 export default async function MessagesPage({ searchParams }: PageProps<"/messages">) {
   const user = await requireUser();
@@ -37,7 +38,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
 
   // In the giftee thread "me" is Santa; in the santa thread "me" is the receiver.
   const isMine = (m: Message) => (tab === "giftee" ? m.fromSanta : !m.fromSanta);
-  const theirSignature = tab === "giftee" ? (giftee?.name ?? "") : santa ? `${santa.name}, your Santa` : "Your Secret Santa";
+  const theirSignature = tab === "giftee" ? firstName(giftee?.name ?? "") : santa ? `${firstName(santa.name)}, your Santa` : "Your Secret Santa";
   const hasThread = tab === "giftee" ? !!giftee : !!santaId;
 
   return (
@@ -47,7 +48,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
 
       <div role="tablist" aria-label="Conversations" className="grid grid-cols-2 gap-1 rounded-full bg-night p-1">
         <Tab href="/messages?with=giftee" active={tab === "giftee"}>
-          To {giftee?.name ?? "your giftee"}
+          To {giftee ? firstName(giftee.name) : "your giftee"}
         </Tab>
         <Tab href="/messages?with=santa" active={tab === "santa"}>
           From your Santa
@@ -56,21 +57,21 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
 
       <div className="flex items-center gap-3 rounded-[18px] bg-deep px-3.5 py-3">
         {tab === "giftee" && giftee ? (
-          <Avatar name={giftee.name} ornament={giftee.ornament} />
+          <NameTag name={giftee.name} ornament={giftee.ornament} />
         ) : santa ? (
-          <Avatar name={santa.name} ornament={santa.ornament} />
+          <NameTag name={santa.name} ornament={santa.ornament} />
         ) : (
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-midnight text-gold shadow-[inset_0_0_0_1.5px_var(--color-gold)]">
             <SantaIcon size={22} />
           </span>
         )}
-        <div className="flex flex-col gap-0.5">
+        <div className="flex min-w-0 flex-col gap-0.5">
           <span className="font-bold">
-            {tab === "giftee" ? (giftee?.name ?? "Your giftee") : santa ? `${santa.name} (your Santa)` : "Your Secret Santa"}
+            {tab === "giftee" ? "Your giftee" : santa ? "Your Santa" : "Your Secret Santa"}
           </span>
           <span className="text-[13px] text-mist">
             {tab === "giftee"
-              ? `${giftee?.name ?? "They"} sees you as “Your Secret Santa”.`
+              ? `${giftee ? firstName(giftee.name) : "They"} sees you as “Your Secret Santa”.`
               : santa
                 ? "The secret is out!"
                 : "They know who you are. You don't know who they are."}
@@ -117,7 +118,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
         <div className="sticky bottom-[84px] -mx-5 border-t border-white/10 bg-abyss/95 px-4 pb-3 pt-3 backdrop-blur md:static md:mx-0 md:rounded-3xl md:border-0">
           <MessageComposer
             to={tab}
-            placeholder={tab === "giftee" ? `Message ${giftee?.name} anonymously…` : "Write back to your Santa…"}
+            placeholder={tab === "giftee" ? `Message ${giftee ? firstName(giftee.name) : "your giftee"} anonymously…` : "Write back to your Santa…"}
           />
         </div>
       )}

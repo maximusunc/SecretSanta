@@ -12,12 +12,13 @@ import {
 } from "@/lib/exchanges";
 import { unreadCount } from "@/lib/messages";
 import { listUsers } from "@/lib/users";
-import Avatar from "@/components/Avatar";
+import NameTag from "@/components/NameTag";
 import Countdown from "@/components/Countdown";
 import { BoardsIcon, MailIcon } from "@/components/Icons";
 import Reveal from "@/components/Reveal";
 import RecipientPicker from "@/components/RecipientPicker";
 import { markAssignmentSeen } from "../actions/exchange";
+import { firstName } from "@/lib/ornaments";
 
 function greeting() {
   const h = new Date().getHours();
@@ -51,7 +52,7 @@ export default async function Dashboard() {
           {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
         </span>
         <h1 className="font-display text-4xl font-semibold leading-tight">
-          {greeting()}, {user.name}.
+          {greeting()}, {firstName(user.name)}.
         </h1>
       </div>
 
@@ -76,11 +77,15 @@ export default async function Dashboard() {
 
       <section className="flex flex-col gap-3">
         <h2 className="font-display text-2xl font-semibold">The family</h2>
-        <div className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1">
+        <div className="flex flex-wrap gap-3">
           {users.map((u) => (
-            <Link key={u.id} href={`/boards/${u.id}`} className="flex w-14 shrink-0 flex-col items-center gap-1.5 text-center">
-              <Avatar name={u.name} ornament={u.ornament} ring={u.id === user.id} />
-              <span className="w-full truncate text-xs font-medium">{u.id === user.id ? "You" : u.name}</span>
+            <Link
+              key={u.id}
+              href={`/boards/${u.id}`}
+              aria-label={u.id === user.id ? "Your board" : `${firstName(u.name)}'s board`}
+              className="rounded-full p-0.5 transition hover:-translate-y-0.5"
+            >
+              <NameTag name={u.name} ornament={u.ornament} size="lg" ring={u.id === user.id} />
             </Link>
           ))}
         </div>
@@ -156,7 +161,7 @@ function Assignment({ ex, user, users }: { ex: Exchange | null; user: User; user
   return (
     <div className="flex flex-col gap-2">
       <Reveal
-        person={{ id: receiver.id, name: receiver.name, ornament: receiver.ornament }}
+        person={{ id: receiver.id, name: firstName(receiver.name), ornament: receiver.ornament }}
         alreadySeen={mine.seenAt !== null}
         onOpened={markAssignmentSeen}
       />
@@ -177,7 +182,7 @@ function SantaReveal({ ex, user, users }: { ex: Exchange; user: User; users: Use
   if (!santa) return null;
   return (
     <Reveal
-      person={{ id: santa.id, name: santa.name, ornament: santa.ornament }}
+      person={{ id: santa.id, name: firstName(santa.name), ornament: santa.ornament }}
       alreadySeen={false}
       variant="santa"
     />
@@ -190,7 +195,7 @@ function GifteePeek({ giftee }: { giftee: User }) {
   return (
     <section className="card flex flex-col gap-3 p-[18px]">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-[22px] font-semibold">New on {giftee.name}&apos;s board</h2>
+        <h2 className="font-display text-[22px] font-semibold">New on {firstName(giftee.name)}&apos;s board</h2>
         <Link href={`/boards/${giftee.id}`} className="text-sm font-bold text-spruce hover:underline">
           All {items.length}
         </Link>

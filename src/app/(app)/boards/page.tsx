@@ -5,7 +5,7 @@ import { getCurrentExchange, getMyAssignment } from "@/lib/exchanges";
 import { imageSrc } from "@/lib/imageSrc";
 import { listUsers } from "@/lib/users";
 import { timeAgo } from "@/lib/dates";
-import Avatar from "@/components/Avatar";
+import NameTag from "@/components/NameTag";
 
 const EMPTY_TILES = ["#2a3e5c", "#33496b", "#24374f", "#3a4f70"];
 const LIGHT_TILES = ["#e7dcc6", "#dce6f2", "#d7e6de", "#f3d7cf", "#efe3c3"];
@@ -58,12 +58,12 @@ export default async function BoardsPage() {
                   <Tile key={t} item={s?.covers[t]} fallback={EMPTY_TILES[(i + t) % 4]} />
                 ))}
               </div>
-              <div className="flex items-center gap-2.5 p-3">
-                <Avatar name={u.name} ornament={u.ornament} size="sm" />
-                <div className="flex min-w-0 flex-col">
-                  <span className="truncate text-[15px] font-bold">{u.id === user.id ? "Your board" : u.name}</span>
-                  <span className="text-xs text-mist">{countLabel(s?.count ?? 0)}</span>
-                </div>
+              <div className="flex flex-col items-start gap-1.5 p-3">
+                <NameTag name={u.name} ornament={u.ornament} ring={u.id === user.id} />
+                <span className="text-xs text-mist">
+                  {u.id === user.id ? "Your board · " : ""}
+                  {countLabel(s?.count ?? 0)}
+                </span>
               </div>
             </Link>
           );
@@ -90,9 +90,8 @@ function FeaturedBoard({ giftee, summary }: { giftee: User; summary?: { count: n
         <div className="h-full w-full" style={{ background: LIGHT_TILES[4] }} />
       </div>
       <div className="flex items-center gap-3 px-4 py-3.5">
-        <Avatar name={giftee.name} ornament={giftee.ornament} />
-        <div className="flex flex-1 flex-col gap-0.5">
-          <span className="font-display text-[22px] font-bold leading-tight">{giftee.name}</span>
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-1.5">
+          <NameTag name={giftee.name} ornament={giftee.ornament} size="lg" />
           <span className="text-[13px] text-muted">
             {countLabel(summary?.count ?? 0)}
             {latest ? ` · updated ${timeAgo(latest)}` : ""}
