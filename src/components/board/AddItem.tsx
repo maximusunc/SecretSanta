@@ -7,7 +7,8 @@ import { FormMessage, SubmitButton } from "../Forms";
 import { PlusIcon } from "../Icons";
 
 /** Pin a link (with automatic title + picture) and/or a photo, plus notes. */
-export default function AddItem() {
+/** `boardUserId`: whose board to pin to (admins can pin to anyone's). */
+export default function AddItem({ boardUserId }: { boardUserId: number }) {
   const [open, setOpen] = useState(false);
   const [state, action] = useActionState(addBoardItem, null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -102,6 +103,7 @@ export default function AddItem() {
         </div>
       )}
 
+      <input type="hidden" name="boardUserId" value={boardUserId} />
       <input type="hidden" name="imageUrl" value={preview?.image ?? ""} />
       <input type="hidden" name="siteName" value={preview?.siteName ?? ""} />
 

@@ -16,6 +16,8 @@ export default async function BoardPage({ params }: PageProps<"/boards/[userId]"
 
   const items = listItems(owner.id);
   const isMine = owner.id === me.id;
+  // Admins can manage anyone's board (e.g. copying ideas over from Pinterest).
+  const canEdit = isMine || me.isAdmin;
   const ex = getCurrentExchange();
   const isGiftee = !!ex && getMyAssignment(ex.id, me.id)?.receiverId === owner.id;
   const count = `${items.length} idea${items.length === 1 ? "" : "s"}`;
@@ -51,20 +53,25 @@ export default async function BoardPage({ params }: PageProps<"/boards/[userId]"
 
       {/* The board itself sits on a light paper sheet. */}
       <div className="-mx-5 -mb-32 min-h-[50dvh] rounded-t-[28px] bg-paper px-4 pb-40 pt-5 text-ink sm:mx-0 sm:rounded-[28px] sm:px-5 md:mb-0 md:pb-8">
-        {isMine && (
+        {canEdit && !isMine && (
+          <p className="mb-3 rounded-2xl bg-gold/20 px-4 py-2.5 text-sm font-semibold text-ink">
+            Admin: you&apos;re editing {firstName(owner.name)}&apos;s board.
+          </p>
+        )}
+        {canEdit && (
           <div className="mb-4">
-            <AddItem />
+            <AddItem boardUserId={owner.id} />
           </div>
         )}
 
         {items.length === 0 ? (
           <p className="py-12 text-center text-muted">
-            {isMine ? "Pin your first idea above." : `${firstName(owner.name)} hasn't pinned anything yet.`}
+            {canEdit ? "Pin the first idea above." : `${firstName(owner.name)} hasn't pinned anything yet.`}
           </p>
         ) : (
           <div className="columns-2 gap-3 md:columns-3 lg:columns-4">
             {items.map((item) => (
-              <ItemCard key={item.id} item={item} editable={isMine} ownerName={owner.name} />
+              <ItemCard key={item.id} item={item} editable={canEdit} ownerName={owner.name} />
             ))}
           </div>
         )}
