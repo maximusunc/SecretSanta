@@ -6,6 +6,7 @@ import { imageSrc } from "@/lib/imageSrc";
 import { editBoardItem, removeBoardItem } from "@/app/actions/board";
 import { ActionForm, SubmitButton } from "../Forms";
 import { LinkIcon } from "../Icons";
+import { firstName } from "@/lib/ornaments";
 
 /** One pinned idea. Items with no picture and no link render as a handwritten-style note. */
 export default function ItemCard({
@@ -59,7 +60,7 @@ export default function ItemCard({
   if (isNote) {
     return (
       <article className="mb-3 flex break-inside-avoid flex-col gap-2 rounded-[18px] border-[1.5px] border-dashed border-[#c9bfad] p-4">
-        <span className="eyebrow text-bronze">Note from {ownerName}</span>
+        <span className="eyebrow text-bronze">Note from {firstName(ownerName)}</span>
         {item.title && <h3 className="font-display text-[17px] font-semibold leading-snug">{item.title}</h3>}
         {item.notes && <p className="whitespace-pre-line font-display text-[17px] leading-snug">{item.notes}</p>}
         {controls}

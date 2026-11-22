@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getCurrentExchange } from "@/lib/exchanges";
 import { unreadCount } from "@/lib/messages";
-import Avatar from "@/components/Avatar";
+import NameTag from "@/components/NameTag";
 import NavLinks from "@/components/NavLinks";
 import { SnowToggle } from "@/components/Snow";
 
@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           <NavLinks items={items} />
           <SnowToggle />
           <Link href="/account" aria-label="Your account" className="rounded-full transition hover:scale-105">
-            <Avatar name={user.name} ornament={user.ornament} ring />
+            <NameTag name={user.name} ornament={user.ornament} ring />
           </Link>
         </div>
       </header>

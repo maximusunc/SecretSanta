@@ -8,7 +8,7 @@ import {
   type Exchange,
 } from "@/lib/exchanges";
 import { listUsers } from "@/lib/users";
-import Avatar from "@/components/Avatar";
+import { OrnamentDot } from "@/components/NameTag";
 import { ActionForm, SubmitButton } from "@/components/Forms";
 import {
   createExchange,
@@ -181,8 +181,8 @@ function CurrentExchange({ ex, users }: { ex: Exchange; users: User[] }) {
               const p = prog.get(u.id);
               const ok = ex.mode === "manual" ? !!p : !!p?.seen;
               return (
-                <span key={u.id} className={`inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm font-bold ${ok ? "bg-spruce text-white" : "bg-ink/5 text-muted"}`}>
-                  <Avatar name={u.name} ornament={u.ornament} size="xs" /> {u.name} {ok ? "✓" : "…"}
+                <span key={u.id} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${ok ? "bg-spruce text-white" : "bg-ink/5 text-muted"}`}>
+                  {u.name} {ok ? "✓" : "…"}
                 </span>
               );
             })}
@@ -198,7 +198,7 @@ function MemberRow({ user, users, isMe }: { user: User; users: User[]; isMe: boo
     <li className="py-3">
       <details className="group">
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3">
-          <Avatar name={user.name} ornament={user.ornament} size="sm" />
+          <OrnamentDot ornament={user.ornament} />
           <div className="min-w-0 flex-1">
             <div className="font-bold">
               {user.name}

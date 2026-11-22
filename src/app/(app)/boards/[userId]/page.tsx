@@ -4,10 +4,10 @@ import { requireUser } from "@/lib/auth";
 import { listItems } from "@/lib/board";
 import { getCurrentExchange, getMyAssignment } from "@/lib/exchanges";
 import { getUser } from "@/lib/users";
-import Avatar from "@/components/Avatar";
 import { BackIcon, ChatIcon } from "@/components/Icons";
 import AddItem from "@/components/board/AddItem";
 import ItemCard from "@/components/board/ItemCard";
+import { firstName } from "@/lib/ornaments";
 
 export default async function BoardPage({ params }: PageProps<"/boards/[userId]">) {
   const me = await requireUser();
@@ -32,10 +32,9 @@ export default async function BoardPage({ params }: PageProps<"/boards/[userId]"
           )}
         </div>
         <div className="flex items-center gap-3.5">
-          <Avatar name={owner.name} ornament={owner.ornament} size="lg" ring={isMine} />
           <div className="flex flex-col gap-0.5">
-            <h1 className="font-display text-[30px] font-bold leading-[1.05]">
-              {isMine ? "Your wish board" : `${owner.name}'s board`}
+            <h1 className="font-display text-[34px] font-bold leading-[1.05]">
+              {isMine ? "Your wish board" : `${firstName(owner.name)}'s board`}
             </h1>
             <span className="text-sm text-mist">
               {count}
@@ -45,7 +44,7 @@ export default async function BoardPage({ params }: PageProps<"/boards/[userId]"
         </div>
         {isGiftee && (
           <Link href="/messages?with=giftee" className="btn-gold sm:self-start">
-            <ChatIcon size={18} /> Ask {owner.name} a sneaky question
+            <ChatIcon size={18} /> Ask {firstName(owner.name)} a sneaky question
           </Link>
         )}
       </div>
@@ -60,7 +59,7 @@ export default async function BoardPage({ params }: PageProps<"/boards/[userId]"
 
         {items.length === 0 ? (
           <p className="py-12 text-center text-muted">
-            {isMine ? "Pin your first idea above." : `${owner.name} hasn't pinned anything yet.`}
+            {isMine ? "Pin your first idea above." : `${firstName(owner.name)} hasn't pinned anything yet.`}
           </p>
         ) : (
           <div className="columns-2 gap-3 md:columns-3 lg:columns-4">

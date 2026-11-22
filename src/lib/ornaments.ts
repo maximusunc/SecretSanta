@@ -1,4 +1,4 @@
-/** Avatar colours: each person is an ornament with their initials on it. */
+/** Avatar colours: each person is an ornament-coloured tag with their first name on it. */
 export const ORNAMENTS = {
   cranberry: { label: "Cranberry", bg: "#d2394a", fg: "#ffffff" },
   spruce: { label: "Spruce", bg: "#2f6b57", fg: "#ffffff" },
@@ -16,10 +16,7 @@ export const ORNAMENT_IDS = Object.keys(ORNAMENTS) as Ornament[];
 export const isOrnament = (v: string): v is Ornament => v in ORNAMENTS;
 export const ornamentFor = (v: string) => ORNAMENTS[isOrnament(v) ? v : "spruce"];
 
-/** "Blair" → "BL", "Mary Jane" → "MJ". */
-export function initials(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "?";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
+/** "Blair Wang" → "Blair". Everyone shares a last name, so the first name is what tells people apart. */
+export function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] || name;
 }

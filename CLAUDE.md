@@ -11,5 +11,6 @@
   admins, until `isRevealed(exchange)`. Re-check auth in every server action (`requireUser`/`requireAdmin`).
 - Design tokens and custom classes (`card` = ivory on navy, `panel` = dark card, `btn-gold|cranberry|spruce|outline|ghost`,
   `input`, `label`, `eyebrow`) are in `globals.css`. Use `text-muted` only on ivory/paper; on navy use `text-mist`/`text-haze`.
-- Avatars are ornament colours + initials (`src/lib/ornaments.ts`, `components/Avatar.tsx`); no emoji in the UI.
+- Avatars are first-name tags in the person's ornament colour (`src/lib/ornaments.ts`, `components/NameTag.tsx`);
+  everyone shares a last name, so never use initials or last names to tell people apart. No emoji in the UI.
 - Checks: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`.

@@ -1,19 +1,16 @@
 import { requireUser } from "@/lib/auth";
-import Avatar from "@/components/Avatar";
 import { ActionForm, SubmitButton } from "@/components/Forms";
 import OrnamentPicker from "@/components/OrnamentPicker";
+import UsernameField from "@/components/UsernameField";
 import { changePassword, logout, updateOrnament } from "../../actions/auth";
 
 export default async function AccountPage() {
   const user = await requireUser();
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6">
-      <div className="flex items-center gap-4">
-        <Avatar name={user.name} ornament={user.ornament} size="lg" ring />
-        <div className="flex flex-col">
-          <h1 className="font-display text-4xl font-semibold leading-tight">{user.name}</h1>
-          <span className="text-sm text-mist">{user.email}</span>
-        </div>
+      <div className="flex flex-col">
+        <h1 className="font-display text-4xl font-semibold leading-tight">{user.name}</h1>
+        <span className="text-sm text-mist">{user.email}</span>
       </div>
 
       <section className="flex flex-col gap-3.5">
@@ -27,6 +24,7 @@ export default async function AccountPage() {
       <section className="card p-5">
         <h2 className="mb-3 font-display text-xl font-semibold">Change password</h2>
         <ActionForm action={changePassword} resetOnSuccess className="flex flex-col gap-3">
+          <UsernameField email={user.email} />
           <div>
             <label className="label" htmlFor="current">Current password</label>
             <input id="current" name="current" type="password" required className="input" autoComplete="current-password" />

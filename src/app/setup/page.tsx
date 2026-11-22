@@ -17,7 +17,7 @@ export default async function SetupPage() {
         </div>
         <div>
           <label className="label" htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" required className="input" autoComplete="email" />
+          <input id="email" name="email" type="email" required className="input" autoComplete="username" />
         </div>
         <div>
           <label className="label" htmlFor="password">Password</label>
