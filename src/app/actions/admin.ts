@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { hashPassword, requireAdmin, tempPassword } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { getExchange, runDraw } from "@/lib/exchanges";
-import { getUser, setSpouse } from "@/lib/users";
+import { getUser, setSpouse, userCount } from "@/lib/users";
+import { ORNAMENT_IDS } from "@/lib/ornaments";
 import type { ActionResult } from "@/components/Forms";
 
 const str = (fd: FormData, k: string, max = 200) => String(fd.get(k) ?? "").trim().slice(0, max);
@@ -27,8 +28,8 @@ export async function createUser(_: ActionResult, fd: FormData): Promise<ActionR
   const pw = tempPassword();
   try {
     getDb()
-      .prepare("INSERT INTO users (email, name, password_hash, emoji) VALUES (?, ?, ?, '🎄')")
-      .run(email, name, await hashPassword(pw));
+      .prepare("INSERT INTO users (email, name, password_hash, ornament) VALUES (?, ?, ?, ?)")
+      .run(email, name, await hashPassword(pw), ORNAMENT_IDS[userCount() % ORNAMENT_IDS.length]);
   } catch {
     return { error: "Someone already has that email." };
   }
@@ -100,7 +101,7 @@ export async function createExchange(_: ActionResult, fd: FormData): Promise<Act
   } catch {
     return { error: `There's already an exchange for ${year}.` };
   }
-  return done(`Created the ${year} exchange! 🎄`);
+  return done(`Created the ${year} exchange!`);
 }
 
 export async function updateExchange(_: ActionResult, fd: FormData): Promise<ActionResult> {
@@ -120,7 +121,7 @@ export async function drawNamesAction(_: ActionResult, fd: FormData): Promise<Ac
   });
   if (!res.ok) return { error: res.reason };
   return done(
-    `Names drawn! 🎩✨ (${res.possibilities} possible pairings were valid — one was picked at random.) Nobody, including you, can see the results here.`,
+    `Names drawn! (${res.possibilities} possible pairings were valid — one was picked at random.) Nobody, including you, can see the results here.`,
   );
 }
 

@@ -1,16 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Mountains_of_Christmas, Nunito } from "next/font/google";
+import { DM_Sans, Fraunces } from "next/font/google";
 import Snow from "@/components/Snow";
 import "./globals.css";
 
-const festive = Mountains_of_Christmas({
-  variable: "--font-festive",
-  weight: ["400", "700"],
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
-const body = Nunito({
-  variable: "--font-body",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#b3202e",
+  themeColor: "#0f1b2d",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${festive.variable} ${body.variable} h-full antialiased`}>
+    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} h-full antialiased`}>
       <body className="min-h-full font-sans">
         <Snow />
         {children}

@@ -9,5 +9,7 @@
   Open the DB via `getDb()` (lazy, so `next build` never touches it).
 - **Secrecy invariant:** never send a user's Santa (giver) id to the client, and never show pairings to
   admins, until `isRevealed(exchange)`. Re-check auth in every server action (`requireUser`/`requireAdmin`).
-- Custom Tailwind classes (`card`, `btn-*`, `input`, `label`) are `@utility` blocks in `globals.css`.
+- Design tokens and custom classes (`card` = ivory on navy, `panel` = dark card, `btn-gold|cranberry|spruce|outline|ghost`,
+  `input`, `label`, `eyebrow`) are in `globals.css`. Use `text-muted` only on ivory/paper; on navy use `text-mist`/`text-haze`.
+- Avatars are ornament colours + initials (`src/lib/ornaments.ts`, `components/Avatar.tsx`); no emoji in the UI.
 - Checks: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`.

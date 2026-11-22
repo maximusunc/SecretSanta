@@ -13,7 +13,7 @@ export type User = {
   id: number;
   email: string;
   name: string;
-  emoji: string;
+  ornament: string;
   isAdmin: boolean;
   mustChangePassword: boolean;
   spouseId: number | null;
@@ -23,7 +23,7 @@ type UserRow = {
   id: number;
   email: string;
   name: string;
-  emoji: string;
+  ornament: string;
   is_admin: number;
   must_change_password: number;
   spouse_id: number | null;
@@ -33,7 +33,7 @@ export const toUser = (r: UserRow): User => ({
   id: r.id,
   email: r.email,
   name: r.name,
-  emoji: r.emoji,
+  ornament: r.ornament,
   isAdmin: !!r.is_admin,
   mustChangePassword: !!r.must_change_password,
   spouseId: r.spouse_id,

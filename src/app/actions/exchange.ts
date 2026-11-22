@@ -25,5 +25,5 @@ export async function recordMyRecipient(_: ActionResult, fd: FormData): Promise<
   const res = setManualAssignment(ex.id, user.id, receiverId);
   if (!res.ok) return { error: res.reason };
   revalidatePath("/", "layout");
-  return { ok: receiverId ? "Got it — your secret is safe with us. 🤫" : "Cleared." };
+  return { ok: receiverId ? "Got it. Your secret is safe with us." : "Cleared." };
 }

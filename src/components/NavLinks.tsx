@@ -2,66 +2,71 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BoardsIcon, ChatIcon, ClockIcon, GearIcon, HomeIcon } from "./Icons";
 
-type Item = { href: string; label: string; icon: string; badge?: number };
+const ICONS = { home: HomeIcon, boards: BoardsIcon, messages: ChatIcon, history: ClockIcon, admin: GearIcon };
+type Item = { href: string; label: string; icon: keyof typeof ICONS; badge?: number };
 
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
-/** Bottom tab bar on phones, top pill nav on larger screens. */
+/** Bottom tab bar on phones, pill nav in the header on larger screens. */
 export default function NavLinks({ items }: { items: Item[] }) {
   const pathname = usePathname();
   return (
     <>
-      <nav className="hidden items-center gap-1 sm:flex">
-        {items.map((it) => (
-          <Link
-            key={it.href}
-            href={it.href}
-            className={`relative rounded-full px-4 py-2 text-sm font-semibold transition ${
-              isActive(pathname, it.href) ? "bg-white text-berry shadow" : "text-white/90 hover:bg-white/15"
-            }`}
-          >
-            {it.label}
-            {!!it.badge && <Badge n={it.badge} />}
-          </Link>
-        ))}
+      <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+        {items.map((it) => {
+          const active = isActive(pathname, it.href);
+          return (
+            <Link
+              key={it.href}
+              href={it.href}
+              aria-current={active ? "page" : undefined}
+              className={`relative rounded-full px-4 py-2 text-sm font-bold transition ${
+                active ? "bg-gold text-ink" : "text-haze hover:bg-white/10 hover:text-snow"
+              }`}
+            >
+              {it.label}
+              {!!it.badge && (
+                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-cranberry shadow-[0_0_0_2px_var(--color-midnight)]" />
+              )}
+            </Link>
+          );
+        })}
       </nav>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-paper/95 backdrop-blur sm:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        aria-label="Main"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-abyss/95 backdrop-blur md:hidden"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}
       >
-        <div className="mx-auto flex max-w-md">
+        <div className="mx-auto flex max-w-md px-2 pt-2">
           {items.map((it) => {
             const active = isActive(pathname, it.href);
+            const Icon = ICONS[it.icon];
             return (
               <Link
                 key={it.href}
                 href={it.href}
-                className={`relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-bold ${
-                  active ? "text-berry" : "text-muted"
+                aria-current={active ? "page" : undefined}
+                className={`relative flex flex-1 flex-col items-center gap-1 py-1.5 text-xs ${
+                  active ? "font-bold text-gold" : "font-medium text-mist"
                 }`}
               >
-                <span className={`text-xl transition ${active ? "scale-110" : "grayscale-[60%]"}`}>
-                  {it.icon}
-                </span>
+                <Icon />
                 {it.label}
-                {!!it.badge && <Badge n={it.badge} />}
+                {!!it.badge && (
+                  <span className="absolute left-[54%] top-1 h-2.5 w-2.5 rounded-full bg-cranberry shadow-[0_0_0_2px_var(--color-abyss)]">
+                    <span className="sr-only">{it.badge} unread</span>
+                  </span>
+                )}
               </Link>
             );
           })}
         </div>
       </nav>
     </>
-  );
-}
-
-function Badge({ n }: { n: number }) {
-  return (
-    <span className="absolute right-1/4 top-1 grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1 text-[11px] font-bold text-ink sm:-right-1 sm:-top-1">
-      {n}
-    </span>
   );
 }

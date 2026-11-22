@@ -1,18 +1,30 @@
 @import "tailwindcss";
 
+/* "Night Before Christmas": midnight navy around the edges, warm ivory paper
+   where content lives, candlelight gold for anything that sparkles. */
 @theme {
-  --color-cream: #fdf8ef;
-  --color-paper: #fffdf8;
-  --color-ink: #2b1d14;
-  --color-muted: #7a6a5c;
-  --color-berry: #b3202e;
-  --color-berry-dark: #8c1622;
-  --color-pine: #1f5a3d;
-  --color-pine-dark: #143d29;
-  --color-gold: #d9a441;
-  --color-frost: #eaf3f7;
-  --font-display: var(--font-festive), "Georgia", serif;
-  --font-sans: var(--font-body), system-ui, sans-serif;
+  --color-midnight: #0f1b2d; /* page background */
+  --color-deep: #13223a;     /* hero sections */
+  --color-night: #1b2c45;    /* dark cards */
+  --color-abyss: #0b1524;    /* bottom bar */
+  --color-gold: #f2b544;     /* candlelight: primary accent */
+  --color-gold-bright: #ffd27a;
+  --color-cranberry: #d2394a;
+  --color-cranberry-dark: #b22d3d;
+  --color-spruce: #2f6b57;
+  --color-spruce-dark: #1f4a3c;
+  --color-ivory: #fbf6ec;    /* content cards */
+  --color-paper: #f4efe6;    /* light page sheet; also text on navy */
+  --color-snow: #f4efe6;
+  --color-mist: #a9b6c9;     /* secondary text on navy */
+  --color-haze: #c3ccda;     /* body text on navy */
+  --color-ink: #0f1b2d;      /* text on ivory */
+  --color-muted: #5b6472;    /* secondary text on ivory */
+  --color-line: #d9cfbd;     /* borders on ivory */
+  --color-bronze: #8a6a1f;   /* small labels on ivory */
+  --color-tan: #c9a35a;      /* ribbon / string */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
 }
 
 html {
@@ -20,54 +32,65 @@ html {
 }
 
 body {
-  background-color: var(--color-cream);
+  background-color: var(--color-midnight);
+  /* A dusting of static snow behind everything. */
   background-image:
-    radial-gradient(circle at 12% 8%, rgb(179 32 46 / 0.07), transparent 40%),
-    radial-gradient(circle at 88% 30%, rgb(31 90 61 / 0.08), transparent 45%);
+    radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.45) 1px, transparent 1.6px),
+    radial-gradient(circle at 70% 60%, rgb(255 255 255 / 0.3) 1.2px, transparent 1.8px),
+    radial-gradient(circle at 45% 85%, rgb(255 255 255 / 0.22) 1px, transparent 1.5px);
+  background-size: 90px 90px, 140px 140px, 60px 60px;
   background-attachment: fixed;
-  color: var(--color-ink);
+  color: var(--color-snow);
 }
 
-/* Candy-cane stripe used as a decorative border. */
-.candy-stripe {
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--color-berry) 0 10px,
-    #fff 10px 20px
-  );
-}
-
+/* Ivory content card on the navy page. */
 @utility card {
-  @apply rounded-2xl bg-paper shadow-[0_2px_0_rgb(43_29_20/0.06),0_8px_24px_-12px_rgb(43_29_20/0.25)] ring-1 ring-ink/5;
+  @apply rounded-3xl bg-ivory text-ink shadow-[0_22px_40px_-24px_rgb(0_0_0/0.6)];
+}
+/* Dark card on the navy page. */
+@utility panel {
+  @apply rounded-3xl bg-night text-snow;
+}
+
+@utility eyebrow {
+  @apply text-xs font-bold uppercase tracking-[0.2em];
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-semibold transition active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none;
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 font-bold transition active:scale-[0.97] disabled:pointer-events-none disabled:opacity-60;
 }
-@utility btn-primary {
-  @apply btn bg-berry text-white shadow-md shadow-berry/30 hover:bg-berry-dark;
+@utility btn-gold {
+  @apply btn bg-gold text-ink hover:bg-gold-bright;
 }
-@utility btn-green {
-  @apply btn bg-pine text-white shadow-md shadow-pine/30 hover:bg-pine-dark;
+@utility btn-cranberry {
+  @apply btn bg-cranberry text-white hover:bg-cranberry-dark;
 }
+@utility btn-spruce {
+  @apply btn bg-spruce text-white hover:bg-spruce-dark;
+}
+/* Outline button for use on navy. */
+@utility btn-outline {
+  @apply btn border-[1.5px] border-snow/40 text-snow hover:bg-white/5;
+}
+/* Quiet button for use on ivory. */
 @utility btn-ghost {
   @apply btn bg-ink/5 text-ink hover:bg-ink/10;
 }
 
 @utility input {
-  @apply w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-base outline-none transition placeholder:text-muted/60 focus:border-pine focus:ring-4 focus:ring-pine/15;
+  @apply min-h-12 w-full rounded-2xl border-[1.5px] border-line bg-white px-4 py-3 text-base text-ink outline-none transition placeholder:text-muted/70 focus:border-spruce focus:ring-4 focus:ring-spruce/15;
 }
 @utility label {
-  @apply mb-1.5 block text-sm font-semibold text-ink/80;
+  @apply mb-1.5 block text-[13px] font-bold text-ink;
 }
 
 /* --- Present reveal ---------------------------------------------------- */
 @keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  20% { transform: rotate(-4deg); }
-  40% { transform: rotate(4deg); }
-  60% { transform: rotate(-2deg); }
-  80% { transform: rotate(2deg); }
+  0%, 100% { transform: rotate(-3deg); }
+  20% { transform: rotate(-7deg); }
+  40% { transform: rotate(1deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(-1deg); }
 }
 @keyframes lid-off {
   0% { transform: translateY(0) rotate(0); }
@@ -77,10 +100,15 @@ body {
 @keyframes box-away {
   to { transform: translateY(40px) scale(0.85); opacity: 0; }
 }
-@keyframes pop-in {
-  0% { transform: scale(0.3); opacity: 0; }
-  70% { transform: scale(1.08); opacity: 1; }
-  100% { transform: scale(1); }
+@keyframes tag-drop {
+  0% { transform: translateY(-140px) rotate(-14deg); opacity: 0; }
+  60% { transform: translateY(8px) rotate(5deg); opacity: 1; }
+  80% { transform: translateY(-3px) rotate(0deg); }
+  100% { transform: translateY(0) rotate(2deg); }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(2deg); }
+  50% { transform: rotate(-1deg); }
 }
 @keyframes confetti-fall {
   0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 1; }
@@ -90,11 +118,22 @@ body {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
 }
-.animate-wiggle { animation: wiggle 1.2s ease-in-out infinite; }
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.animate-wiggle { animation: wiggle 1.4s ease-in-out infinite; }
 .animate-lid-off { animation: lid-off 0.9s cubic-bezier(.5,-0.3,.7,1) forwards; }
 .animate-box-away { animation: box-away 0.6s 0.5s ease-in forwards; }
-.animate-pop-in { animation: pop-in 0.7s cubic-bezier(.2,1.4,.4,1) both; }
+.animate-tag-drop { animation: tag-drop 0.9s cubic-bezier(.2,1.2,.4,1) both; }
+.animate-sway { transform-origin: 50% 0; animation: sway 4s ease-in-out infinite; }
 .animate-float { animation: float 3s ease-in-out infinite; }
+.animate-twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+
+/* The gift-tag silhouette: clipped top corners with a hole punched near the top. */
+.gift-tag {
+  clip-path: polygon(22% 0, 78% 0, 100% 13%, 100% 100%, 0 100%, 0 13%);
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

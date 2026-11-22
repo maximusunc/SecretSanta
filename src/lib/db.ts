@@ -80,6 +80,13 @@ const MIGRATIONS: string[] = [
   );
   CREATE INDEX messages_thread ON messages(exchange_id, giver_id, created_at);
   `,
+  /* 2: emoji avatars → ornament colours */ `
+  ALTER TABLE users ADD COLUMN ornament TEXT NOT NULL DEFAULT 'spruce';
+  UPDATE users SET ornament = CASE id % 8
+    WHEN 0 THEN 'silver' WHEN 1 THEN 'cranberry' WHEN 2 THEN 'spruce' WHEN 3 THEN 'candlelight'
+    WHEN 4 THEN 'winter' WHEN 5 THEN 'plum' WHEN 6 THEN 'copper' ELSE 'frost' END;
+  ALTER TABLE users DROP COLUMN emoji;
+  `,
 ];
 
 function migrate(db: Database.Database) {
@@ -93,7 +100,15 @@ function migrate(db: Database.Database) {
 }
 
 function open(): Database.Database {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  try {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    fs.accessSync(DATA_DIR, fs.constants.W_OK);
+  } catch (e) {
+    throw new Error(
+      `Cannot write to the data folder ${DATA_DIR} (${(e as Error).message}). ` +
+        "Make sure it exists and is owned by the user running the app (uid 1000 in Docker).",
+    );
+  }
   const db = new Database(path.join(DATA_DIR, "santa.db"));
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");

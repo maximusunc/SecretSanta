@@ -59,8 +59,8 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
   const photo = fd.get("photo");
   const hasPhoto = photo instanceof File && photo.size > 0;
 
-  if (!url && !hasPhoto && !title) {
-    return { error: "Add a link, a photo, or at least a title." };
+  if (!url && !hasPhoto && !title && !notes) {
+    return { error: "Add a link, a photo, or a few words." };
   }
 
   // If they pasted a link but didn't wait for the preview, fetch it now.
@@ -100,7 +100,7 @@ export async function addBoardItem(_: ActionResult, fd: FormData): Promise<Actio
   });
   revalidatePath(`/boards/${user.id}`);
   revalidatePath("/boards");
-  return { ok: "Pinned! 📌" };
+  return { ok: "Pinned!" };
 }
 
 export async function editBoardItem(_: ActionResult, fd: FormData): Promise<ActionResult> {
