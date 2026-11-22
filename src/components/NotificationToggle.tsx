@@ -5,7 +5,15 @@ import { useCallback, useEffect, useState } from "react";
 import { isPushRegistered, sendTestPush, subscribePush, unsubscribePush } from "@/app/actions/push";
 import { BellIcon } from "./Icons";
 
-type Status = "loading" | "unsupported" | "needs-install" | "denied" | "off" | "on";
+type Status =
+  | "loading"
+  | "unsupported" // not an iPhone, and this browser has no web push
+  | "needs-install" // iPhone in a normal Safari/Chrome tab: push only works from the Home Screen app
+  | "reinstall" // iPhone Home Screen app without push (added before the app had a manifest, or iOS < 16.4)
+  | "error" // something failed while setting up; `detail` says what
+  | "denied"
+  | "off"
+  | "on";
 
 function urlBase64ToUint8Array(base64: string) {
   const padded = (base64 + "=".repeat((4 - (base64.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/");
@@ -22,11 +30,15 @@ function usePush(vapidPublicKey: string) {
   const [status, setStatus] = useState<Status>("loading");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
+      const ios = isIOS();
+      // On iPhone, push only ever works from the Home Screen app, whatever a normal tab claims to support.
+      if (ios && !isStandalone()) return setStatus("needs-install");
       const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-      if (!supported) return setStatus(isIOS() && !isStandalone() ? "needs-install" : "unsupported");
+      if (!supported) return setStatus(ios ? "reinstall" : "unsupported");
       try {
         const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" });
         const sub = await reg.pushManager.getSubscription();
@@ -36,8 +48,9 @@ function usePush(vapidPublicKey: string) {
           return setStatus("on");
         }
         setStatus(Notification.permission === "denied" ? "denied" : "off");
-      } catch {
-        setStatus("unsupported");
+      } catch (e) {
+        setDetail(e instanceof Error ? `${e.name}: ${e.message}` : String(e));
+        setStatus("error");
       }
     })();
   }, []);
@@ -63,8 +76,8 @@ function usePush(vapidPublicKey: string) {
         return setStatus("off");
       }
       setStatus("on");
-    } catch {
-      setNote("Couldn't turn on notifications. Try again in a moment.");
+    } catch (e) {
+      setNote(`Couldn't turn on notifications (${e instanceof Error ? e.message : String(e)}). Try again in a moment.`);
     } finally {
       setBusy(false);
     }
@@ -96,12 +109,12 @@ function usePush(vapidPublicKey: string) {
     }
   }, []);
 
-  return { status, busy, note, turnOn, turnOff, test };
+  return { status, busy, note, detail, turnOn, turnOff, test };
 }
 
 /** Full settings card for the Account page (renders on ivory). */
 export function NotificationSettings({ vapidPublicKey }: { vapidPublicKey: string }) {
-  const { status, busy, note, turnOn, turnOff, test } = usePush(vapidPublicKey);
+  const { status, busy, note, detail, turnOn, turnOff, test } = usePush(vapidPublicKey);
 
   return (
     <section id="notifications" className="card scroll-mt-24 p-5">
@@ -147,6 +160,28 @@ export function NotificationSettings({ vapidPublicKey }: { vapidPublicKey: strin
         </p>
       )}
 
+      {status === "reinstall" && (
+        <>
+          <p className="mb-2 text-sm text-muted">
+            This Home Screen icon was added before notifications existed, so iOS hasn&apos;t switched them on. Re-add it:
+          </p>
+          <ol className="list-decimal space-y-1 pl-5 text-sm">
+            <li>Press and hold the Secret Santa icon, tap <strong>Remove App</strong>, then <strong>Delete from Home Screen</strong>.</li>
+            <li>Open the site in Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</li>
+            <li>Open it from the new icon and come back to this page.</li>
+          </ol>
+          <p className="mt-2 text-xs text-muted">Notifications need iOS 16.4 or newer (Settings → General → About).</p>
+        </>
+      )}
+
+      {status === "error" && (
+        <>
+          <p className="mb-2 text-sm text-muted">Something went wrong setting up notifications on this device.</p>
+          {detail && <p className="mb-3 rounded-xl bg-paper px-3 py-2 font-mono text-xs break-words">{detail}</p>}
+          <button onClick={() => location.reload()} className="btn-ghost text-sm">Try again</button>
+        </>
+      )}
+
       {status === "unsupported" && (
         <p className="text-sm text-muted">This browser can&apos;t show notifications.</p>
       )}
@@ -172,7 +207,7 @@ export function NotificationNudge({ vapidPublicKey }: { vapidPublicKey: string }
     }
   }, []);
 
-  if (dismissed || (status !== "off" && status !== "needs-install")) return null;
+  if (dismissed || (status !== "off" && status !== "needs-install" && status !== "reinstall")) return null;
 
   const dismiss = () => {
     setDismissed(true);
