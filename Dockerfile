@@ -1,5 +1,11 @@
 # ---- deps -----------------------------------------------------------------
 FROM node:22-bookworm-slim AS deps
+# Build tools so native modules (better-sqlite3) can compile from source when
+# no prebuilt binary can be downloaded. Only this stage has them; the final
+# image copies the compiled result.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends python3 make g++ \
+ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
