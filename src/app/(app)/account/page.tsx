@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import Avatar from "@/components/Avatar";
 import { ActionForm, SubmitButton } from "@/components/Forms";
 import OrnamentPicker from "@/components/OrnamentPicker";
+import UsernameField from "@/components/UsernameField";
 import { changePassword, logout, updateOrnament } from "../../actions/auth";
 
 export default async function AccountPage() {
@@ -27,6 +28,7 @@ export default async function AccountPage() {
       <section className="card p-5">
         <h2 className="mb-3 font-display text-xl font-semibold">Change password</h2>
         <ActionForm action={changePassword} resetOnSuccess className="flex flex-col gap-3">
+          <UsernameField email={user.email} />
           <div>
             <label className="label" htmlFor="current">Current password</label>
             <input id="current" name="current" type="password" required className="input" autoComplete="current-password" />

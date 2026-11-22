@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { ActionForm, SubmitButton } from "@/components/Forms";
 import OrnamentPicker from "@/components/OrnamentPicker";
+import UsernameField from "@/components/UsernameField";
 import { completeWelcome } from "../actions/auth";
 
 export default async function WelcomePage() {
@@ -12,6 +13,7 @@ export default async function WelcomePage() {
   return (
     <main className="relative z-10 mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-8 pt-14">
       <ActionForm action={completeWelcome} className="flex flex-1 flex-col gap-6">
+        <UsernameField email={user.email} />
         <div className="flex flex-col gap-2">
           <span className="eyebrow text-gold">One quick step</span>
           <h1 className="font-display text-[40px] font-bold leading-[1.05]">Welcome, {user.name}</h1>

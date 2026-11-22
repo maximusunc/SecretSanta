@@ -16,7 +16,7 @@ export default async function LoginPage() {
       <ActionForm action={login} className="flex flex-col gap-4">
         <div>
           <label className="label" htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" autoComplete="email" required className="input" />
+          <input id="email" name="email" type="email" autoComplete="username" required className="input" />
         </div>
         <div>
           <label className="label" htmlFor="password">Password</label>
