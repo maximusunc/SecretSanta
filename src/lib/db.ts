@@ -100,7 +100,15 @@ function migrate(db: Database.Database) {
 }
 
 function open(): Database.Database {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  try {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    fs.accessSync(DATA_DIR, fs.constants.W_OK);
+  } catch (e) {
+    throw new Error(
+      `Cannot write to the data folder ${DATA_DIR} (${(e as Error).message}). ` +
+        "Make sure it exists and is owned by the user running the app (uid 1000 in Docker).",
+    );
+  }
   const db = new Database(path.join(DATA_DIR, "santa.db"));
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
