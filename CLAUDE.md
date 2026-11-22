@@ -13,4 +13,7 @@
   `input`, `label`, `eyebrow`) are in `globals.css`. Use `text-muted` only on ivory/paper; on navy use `text-mist`/`text-haze`.
 - Avatars are first-name tags in the person's ornament colour (`src/lib/ornaments.ts`, `components/NameTag.tsx`);
   everyone shares a last name, so never use initials or last names to tell people apart. No emoji in the UI.
+- Push notifications: `src/lib/push.ts` (VAPID keys auto-generated into the `settings` table), `public/sw.js`,
+  `src/app/manifest.ts`. Send with `after(() => notifyUser(...))` so actions stay fast. A notification to a giftee
+  must never reveal their Santa.
 - Checks: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`.

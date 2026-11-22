@@ -1,9 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { getCurrentExchange, getMyAssignment, getMySanta } from "@/lib/exchanges";
 import { sendMessage } from "@/lib/messages";
+import { firstName } from "@/lib/ornaments";
+import { notifyUser, preview } from "@/lib/push";
 import type { ActionResult } from "@/components/Forms";
 
 /**
@@ -23,10 +26,28 @@ export async function postMessage(_: ActionResult, fd: FormData): Promise<Action
     const mine = getMyAssignment(ex.id, user.id);
     if (!mine) return { error: "You don't have a giftee yet." };
     sendMessage(ex.id, user.id, mine.receiverId, true, body);
+    // Never name the sender: the giftee only ever knows them as "your Secret Santa".
+    after(() =>
+      notifyUser(mine.receiverId, {
+        title: "Your Secret Santa sent you a message",
+        body: preview(body),
+        url: "/messages?with=santa",
+        tag: "from-santa",
+      }),
+    );
   } else {
     const santaId = getMySanta(ex.id, user.id);
     if (!santaId) return { error: "Your Secret Santa hasn't been assigned yet." };
     sendMessage(ex.id, santaId, user.id, false, body);
+    // The Santa already knows who their giftee is.
+    after(() =>
+      notifyUser(santaId, {
+        title: `${firstName(user.name)} replied`,
+        body: preview(body),
+        url: "/messages?with=giftee",
+        tag: "from-giftee",
+      }),
+    );
   }
   revalidatePath("/messages");
   return { ok: "Sent!" };

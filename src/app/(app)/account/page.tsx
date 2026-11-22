@@ -1,6 +1,8 @@
 import { requireUser } from "@/lib/auth";
 import { ActionForm, SubmitButton } from "@/components/Forms";
+import { NotificationSettings } from "@/components/NotificationToggle";
 import OrnamentPicker from "@/components/OrnamentPicker";
+import { getVapidKeys } from "@/lib/push";
 import UsernameField from "@/components/UsernameField";
 import { changePassword, logout, updateOrnament } from "../../actions/auth";
 
@@ -20,6 +22,8 @@ export default async function AccountPage() {
           <SubmitButton className="btn-gold">Save ornament</SubmitButton>
         </ActionForm>
       </section>
+
+      <NotificationSettings vapidPublicKey={getVapidKeys().publicKey} />
 
       <section className="card p-5">
         <h2 className="mb-3 font-display text-xl font-semibold">Change password</h2>
